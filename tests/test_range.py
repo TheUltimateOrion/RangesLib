@@ -1,10 +1,6 @@
-import sys
 import unittest
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-
-from range import (
+from rangeslib import (
     Drop,
     Empty,
     Filter,
@@ -128,6 +124,7 @@ class PublicNamespaceTests(unittest.TestCase):
     def test_ranges_exposes_public_api(self) -> None:
         expected_names = {
             "Range",
+            "RangeAdaptor",
             "RangeGenerator",
             "To",
             "Reverse",
