@@ -11,9 +11,9 @@ class Empty(RangeGenerator):
 
 
 class Single(RangeGenerator):
-    """Create a ``Range`` containing one integer value."""
+    """Create a ``Range`` containing one value."""
 
-    def __new__(cls, value: int) -> Range[int]:
+    def __new__[T](cls, value: T) -> Range[T]:
         return Range(value)
 
 

@@ -51,13 +51,16 @@ class Transform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
 
 
 class Take[InputT](RangeAdaptor[InputT, Range[InputT]]):
-    """Return at most the first ``n`` elements."""
+    """Apply Python slice-stop semantics to the input."""
 
     def __init__(self, n: int) -> None:
         self.n = n
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
-        return Range(*list(iterable)[:self.n])
+        if self.n >= 0:
+            return Range(*islice(iterable, self.n))
+        return Range(*list(iterable)[: self.n])
+
 
 class TakeWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
     """Keep the initial elements while ``predicate`` remains true."""
@@ -73,14 +76,16 @@ class TakeWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
             result.append(value)
         return Range(*result)
 
+
 class Drop[InputT](RangeAdaptor[InputT, Range[InputT]]):
-    """Discard the first ``n`` elements and return the remainder."""
+    """Apply Python slice-start semantics to the input."""
 
     def __init__(self, n: int) -> None:
         self.n = n
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
-        return Range(*list(iterable)[self.n:])
+        return Range(*list(iterable)[self.n :])
+
 
 class DropWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
     """Discard the initial elements while ``predicate`` remains true."""
@@ -171,7 +176,9 @@ class Zip[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
 class ZipTransform[OutputT](RangeAdaptor[object, Range[OutputT]]):
     """Apply a callable to corresponding values from several iterables."""
 
-    def __init__(self, func: Callable[..., OutputT], *iterables: Iterable[object]) -> None:
+    def __init__(
+        self, func: Callable[..., OutputT], *iterables: Iterable[object]
+    ) -> None:
         self.func = func
         self.iterables = iterables
 
@@ -189,7 +196,12 @@ class Adjacent[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[tuple[InputT, ...]]:
         values = list(iterable)
-        return Range(*(tuple(values[index:index + self.width]) for index in range(len(values) - self.width + 1)))
+        return Range(
+            *(
+                tuple(values[index : index + self.width])
+                for index in range(len(values) - self.width + 1)
+            )
+        )
 
 
 class Pairwise[InputT](Adjacent[InputT]):
@@ -210,7 +222,12 @@ class AdjacentTransform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[OutputT]:
         values = list(iterable)
-        return Range(*(self.func(*values[index:index + self.width]) for index in range(len(values) - self.width + 1)))
+        return Range(
+            *(
+                self.func(*values[index : index + self.width])
+                for index in range(len(values) - self.width + 1)
+            )
+        )
 
 
 class PairwiseTransform[InputT, OutputT](AdjacentTransform[InputT, OutputT]):
@@ -230,7 +247,12 @@ class Chunk[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
         values = list(iterable)
-        return Range(*(Range(*values[index:index + self.size]) for index in range(0, len(values), self.size)))
+        return Range(
+            *(
+                Range(*values[index : index + self.size])
+                for index in range(0, len(values), self.size)
+            )
+        )
 
 
 class Slide[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
@@ -243,7 +265,12 @@ class Slide[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
         values = list(iterable)
-        return Range(*(Range(*values[index:index + self.width]) for index in range(len(values) - self.width + 1)))
+        return Range(
+            *(
+                Range(*values[index : index + self.width])
+                for index in range(len(values) - self.width + 1)
+            )
+        )
 
 
 class ChunkBy[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
@@ -300,6 +327,7 @@ class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
             result.extend(sub_iterable)
         return Range(*result)
 
+
 class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
     """Flatten nested iterables with a separator pattern between them."""
 
@@ -315,6 +343,7 @@ class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
             result.extend(sub_iterable)
             first = False
         return Range(*result)
+
 
 class Split[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
     """Split input into ranges wherever a separator pattern occurs."""
@@ -332,7 +361,7 @@ class Split[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
         current_chunk: list[InputT] = []
         index = 0
         while index < len(values):
-            if values[index:index + separator_length] == list(self.separator):
+            if values[index : index + separator_length] == list(self.separator):
                 result.append(Range(*current_chunk))
                 current_chunk = []
                 index += separator_length

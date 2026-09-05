@@ -1,11 +1,15 @@
 from pathlib import Path
 import sys
+import tomllib
 
-sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
+PROJECT_ROOT = Path(__file__).parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+metadata = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())["project"]
 
 project = "rangeslib"
-author = "RangesLib contributors"
-release = "0.3.0"
+author = "Aaryan Banerjee"
+release = metadata["version"]
 
 extensions = [
     "myst_parser",

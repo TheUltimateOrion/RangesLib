@@ -1,17 +1,76 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "rangeslib"
-version = "0.3.0"
-description = "Composable Python ranges and range adaptors"
+version = "0.3.1"
+description = "Composable, typed Python ranges and iterable adaptors"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Aaryan Banerjee" }]
 requires-python = ">=3.12"
+keywords = ["ranges", "iterables", "pipelines", "functional", "typing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/TheUltimateOrion/RangesLib"
+Documentation = "https://theultimateorion.github.io/RangesLib/"
+Repository = "https://github.com/TheUltimateOrion/RangesLib.git"
+Issues = "https://github.com/TheUltimateOrion/RangesLib/issues"
+
+[project.optional-dependencies]
+docs = [
+    "myst-parser>=4",
+    "sphinx>=8",
+    "sphinx-autodoc-typehints>=3",
+]
+test = ["coverage[toml]>=7.6"]
+dev = [
+    "build>=1.2",
+    "coverage[toml]>=7.6",
+    "mypy>=1.15",
+    "myst-parser>=4",
+    "ruff>=0.9",
+    "sphinx>=8",
+    "sphinx-autodoc-typehints>=3",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[project.optional-dependencies]
-docs = ["sphinx>=8", "myst-parser>=4", "sphinx-autodoc-typehints>=3"]
+[tool.setuptools.package-data]
+rangeslib = ["py.typed"]
+
+[tool.coverage.run]
+branch = true
+source = ["rangeslib"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = true
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

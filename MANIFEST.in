@@ -1,0 +1,9 @@
+include LICENSE
+include README.md
+include requirements.txt
+include generate_docs.sh
+include run_playground.sh
+include run_tests.sh
+include playground.py
+recursive-include docs *.md *.rst *.py
+recursive-include tests *.py

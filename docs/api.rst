@@ -1,27 +1,27 @@
 API reference
 =============
 
-Public classes and adaptors are documented from their source docstrings.
+The supported application-facing API consists of :class:`rangeslib.Range`,
+:mod:`rangeslib.ranges`, and :mod:`rangeslib.views`. Modules beginning with an
+underscore are private implementation details.
 
-Core types
 Core container
 --------------
 
-.. automodule:: rangeslib._core
-   :members: Range
-   :undoc-members:
+.. autoclass:: rangeslib.Range
+   :members: copy, is_empty
    :show-inheritance:
 
-Generators
 Generator facade
 ----------------
 
 .. automodule:: rangeslib.ranges
    :members:
+   :undoc-members:
 
-Adaptors
 View facade
 -----------
 
 .. automodule:: rangeslib.views
    :members:
+   :undoc-members:

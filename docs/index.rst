@@ -1,8 +1,8 @@
 rangeslib documentation
 ========================
 
-``rangeslib`` is a typed Python library for composing eager, list-backed
-ranges and iterable adaptors.
+``rangeslib`` is a typed Python library for composing eager, list-backed ranges
+and iterable adaptors through a small public facade.
 
 Guides
 ------
@@ -13,6 +13,8 @@ Guides
    usage
    architecture
    contributing
+   migration
+   changelog
 
 API reference
 -------------

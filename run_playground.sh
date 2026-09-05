@@ -2,4 +2,4 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-PYTHONPATH=src exec .venv/bin/python playground.py
+PYTHONPATH=src exec python playground.py

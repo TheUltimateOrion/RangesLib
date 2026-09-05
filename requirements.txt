@@ -1,1 +1,2 @@
--e .[docs]
+# Contributor convenience file. End users do not need these dependencies.
+-e .[dev]

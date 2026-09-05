@@ -1,12 +1,15 @@
-name: Tests
+name: Tests and quality
 
 on:
   push:
+  pull_request:
 
 jobs:
   test:
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
 
@@ -21,8 +24,79 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install package
+      - name: Install runtime package
         run: python -m pip install --editable .
 
-      - name: Run tests
+      - name: Run unit tests
         run: python -m unittest discover -s tests -v
+
+  quality:
+    name: Quality gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install development dependencies
+        run: python -m pip install --editable ".[dev]"
+
+      - name: Lint
+        run: ruff check src tests
+
+      - name: Check source formatting
+        run: ruff format --check src
+
+      - name: Type check
+        run: mypy src/rangeslib tests/typecheck/public_api.py
+
+      - name: Run tests with coverage
+        run: |
+          coverage run -m unittest discover -s tests
+          coverage report
+
+      - name: Build documentation with warnings as errors
+        run: python -m sphinx -W --keep-going -b html docs docs/_build/html
+
+  package:
+    name: Build and install package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install build frontend
+        run: python -m pip install build
+
+      - name: Build source and wheel distributions
+        run: python -m build
+
+      - name: Install built wheel
+        run: python -m pip install --force-reinstall dist/*.whl
+
+      - name: Smoke test installed wheel outside the checkout
+        working-directory: /tmp
+        run: |
+          python - <<'PY'
+          from importlib.resources import files
+          from rangeslib import Range, ranges, views
+
+          assert list(Range(1, 2, 3)[1:]) == [2, 3]
+          assert list(ranges.iota(1, 5) | views.take(2)) == [1, 2]
+          assert files("rangeslib").joinpath("py.typed").is_file()
+          PY

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import UserList
-from typing import Iterable
+from typing import Callable, Iterable, SupportsIndex, overload
 
 
 class RangeAdaptor[InputT, OutputT](ABC):
@@ -24,15 +24,14 @@ class RangeAdaptor[InputT, OutputT](ABC):
 class RangeGenerator(ABC):
     """Marker base class for objects that construct :class:`Range` values."""
 
-    pass
-
 
 class Range[T](UserList[T]):
     """A list-backed, typed container used as the library's pipeline value.
 
     ``Range`` is eager: constructing or applying an adaptor stores the result
-    immediately. It supports normal list operations and can pipe into any
-    compatible :class:`RangeAdaptor`.
+    immediately. Construction uses positional values, so ``Range(1, 2, 3)``
+    contains three elements. Standard list-like operations preserve ``Range``
+    as the result type.
     """
 
     def __init__(self, *args: T) -> None:
@@ -44,11 +43,36 @@ class Range[T](UserList[T]):
     def __str__(self) -> str:
         return f"[{', '.join(str(x) for x in self.data)}]"
 
-    def __or__[OutputT](self, adaptor: RangeAdaptor[T, OutputT]) -> OutputT:
+    def __or__[OutputT](self, adaptor: Callable[[Iterable[T]], OutputT], /) -> OutputT:
         return adaptor(self)
 
-    def __len__(self) -> int:
-        return len(self.data)
+    @overload
+    def __getitem__(self, index: SupportsIndex, /) -> T: ...
+
+    @overload
+    def __getitem__(self, index: slice, /) -> Range[T]: ...
+
+    def __getitem__(self, index: SupportsIndex | slice, /) -> T | Range[T]:
+        if isinstance(index, slice):
+            return Range(*self.data[index])
+        return self.data[index]
+
+    def __add__(self, other: Iterable[T], /) -> Range[T]:
+        return Range(*self.data, *other)
+
+    def __radd__(self, other: Iterable[T], /) -> Range[T]:
+        return Range(*other, *self.data)
+
+    def __mul__(self, count: SupportsIndex, /) -> Range[T]:
+        return Range(*(self.data * count))
+
+    def __rmul__(self, count: SupportsIndex, /) -> Range[T]:
+        return self * count
+
+    def copy(self) -> Range[T]:
+        """Return a shallow ``Range`` copy without nesting the source range."""
+        return Range(*self.data)
 
     def is_empty(self) -> bool:
-        return len(self.data) == 0
+        """Return ``True`` when the range has no elements."""
+        return not self.data
