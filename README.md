@@ -3,14 +3,14 @@
 A small, typed Python library for composing ranges, generators, and collection adaptors with readable pipeline syntax.
 
 ```python
-from rangeslib import Filter, Iota, Take, To, Transform
+from rangeslib import ranges, views
 
 values = (
-    Iota(1, 11)
-    | Filter(lambda value: value % 2 == 0)
-    | Transform(lambda value: value * 10)
-    | Take(3)
-    | To(list)
+    ranges.iota(1, 11)
+    | views.filter(lambda value: value % 2 == 0)
+    | views.transform(lambda value: value * 10)
+    | views.take(3)
+    | views.to(list)
 )
 
 assert values == [20, 40, 60]
@@ -44,6 +44,19 @@ python -m pip install -r requirements.txt
 ```
 
 ## Usage
+
+The recommended API uses lowercase factory functions. Generators live in
+`ranges`, and transformations live in `views`:
+
+```python
+from rangeslib import ranges, views
+
+result = ranges.iota(1, 6) | views.filter(lambda value: value % 2 == 0) | views.take(2)
+assert list(result) == [2, 4]
+```
+
+The original class-based names remain available for advanced use and
+backward compatibility.
 
 Generators create `Range` values:
 

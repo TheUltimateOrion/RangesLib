@@ -39,6 +39,8 @@ from rangeslib import (
     Values,
     Zip,
     ZipTransform,
+    ranges,
+    views,
 )
 
 
@@ -300,6 +302,18 @@ class RangeAdaptorTests(unittest.TestCase):
 
 
 class PublicNamespaceTests(unittest.TestCase):
+    def test_lowercase_facade_composes_without_generic_parameters(self) -> None:
+        result = (
+            ranges.iota(1, 6)
+            | views.filter(is_even)
+            | views.transform(times_ten)
+            | views.take(2)
+            | views.to(list)
+        )
+
+        self.assertEqual(result, [20, 40])
+        self.assertEqual(list("abc" | views.take(2)), ["a", "b"])
+
     def test_ranges_exposes_public_api(self) -> None:
         expected_names = {
             "Range",

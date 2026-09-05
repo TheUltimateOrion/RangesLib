@@ -19,6 +19,18 @@ from rangeslib import Filter, Iota, Take, To, Transform
 
 Private modules beginning with `_` are implementation details and should not be imported by applications.
 
+The recommended everyday API uses the lowercase `ranges` and `views` modules:
+
+```python
+from rangeslib import ranges, views
+
+result = ranges.iota(1, 6) | views.filter(lambda value: value % 2 == 0) | views.take(2)
+assert list(result) == [2, 4]
+```
+
+The uppercase class-based API remains available for advanced use and
+backward compatibility.
+
 ## Generators
 
 Generators create `Range` values:

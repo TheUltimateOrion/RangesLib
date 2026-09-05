@@ -1,4 +1,4 @@
-from rangeslib import Filter, Iota, Take, To, Transform
+from rangeslib import ranges, views
 
 
 def is_even(value: int) -> bool:
@@ -10,15 +10,20 @@ def times_ten(value: int) -> int:
 
 
 def main() -> None:
-    result: list[int] = (
-        Iota(1, 11)
-        | Filter(is_even)
-        | Transform(times_ten)
-        | Take(3)
-        | To[int, list[int]](list)
+    cool_str: str = (
+        "abcdefghijklmnopqrstuvwxyz"
+        | views.take(5)
+        | views.to("".join)
     )
-
-    print(result)
+    numbers = (
+        ranges.iota(1, 11)
+        | views.filter(is_even)
+        | views.transform(times_ten)
+        | views.take(3)
+        | views.to(list)
+    )
+    print(cool_str)
+    print(numbers)
 
 
 if __name__ == "__main__":

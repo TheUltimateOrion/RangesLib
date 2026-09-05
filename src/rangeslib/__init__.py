@@ -8,6 +8,7 @@ from ._adaptors import (Adjacent, AdjacentTransform, CartesianProduct, Chunk,
                         Zip, ZipTransform)
 from ._core import Range, RangeAdaptor, RangeGenerator
 from ._generators import Empty, Indices, Iota, Repeat, Single
+from . import ranges, views
 
 
 Ranges: SimpleNamespace = SimpleNamespace(
@@ -89,4 +90,6 @@ __all__ = [
     "Stride",
     "CartesianProduct",
     "SupportsGetItem",
+    "ranges",
+    "views",
 ]
