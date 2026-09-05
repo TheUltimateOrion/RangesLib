@@ -12,6 +12,7 @@ from range import (
     Indices,
     Range,
     RangeAdaptor,
+    RangeGenerator,
     Ranges,
     Repeat,
     Reverse,
@@ -49,6 +50,13 @@ class RangeTests(unittest.TestCase):
         self.assertEqual(list(Indices(0)), [])
         self.assertEqual(list(Repeat("x", 3)), ["x", "x", "x"])
         self.assertEqual(list(Repeat("x", 0)), [])
+
+    def test_all_range_generators_share_the_base_type(self) -> None:
+        generators = [Empty, Single, Iota, Indices, Repeat]
+
+        for generator in generators:
+            with self.subTest(generator=generator):
+                self.assertTrue(issubclass(generator, RangeGenerator))
 
 
 class RangeAdaptorTests(unittest.TestCase):
@@ -120,6 +128,7 @@ class PublicNamespaceTests(unittest.TestCase):
     def test_ranges_exposes_public_api(self) -> None:
         expected_names = {
             "Range",
+            "RangeGenerator",
             "To",
             "Reverse",
             "Filter",

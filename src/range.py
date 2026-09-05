@@ -23,23 +23,27 @@ class Range[T](UserList[T]):
     def is_empty(self) -> bool:
         return len(self.data) == 0
 
-class Empty:
+
+class RangeGenerator(ABC):
+    pass
+
+class Empty(RangeGenerator):
     def __new__(cls) -> Range[int]:
         return Range()
 
-class Single:
+class Single(RangeGenerator):
     def __new__(cls, value: int) -> Range[int]:
         return Range(value)
 
-class Iota:
+class Iota(RangeGenerator):
     def __new__(cls, start: int, end: int) -> Range[int]:
         return Range(*range(start, end))
 
-class Indices:
+class Indices(RangeGenerator):
     def __new__(cls, n: int) -> Range[int]:
         return Iota(0, n)
 
-class Repeat:
+class Repeat(RangeGenerator):
     def __new__[T](cls, value: T, n: int) -> Range[T]:
         return Range(*[value] * n)
 
@@ -94,6 +98,7 @@ class Drop[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 Ranges: SimpleNamespace = SimpleNamespace(
     Range=Range,
+    RangeGenerator=RangeGenerator,
     To=To,
     Reverse=Reverse(),
     Filter=Filter,
