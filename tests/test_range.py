@@ -2,6 +2,11 @@ import unittest
 from collections.abc import Iterable
 
 from rangeslib import (
+    Adjacent,
+    AdjacentTransform,
+    CartesianProduct,
+    Chunk,
+    ChunkBy,
     Concat,
     Counted,
     Drop,
@@ -21,13 +26,19 @@ from rangeslib import (
     Ranges,
     Repeat,
     Reverse,
+    Pairwise,
+    PairwiseTransform,
     Single,
+    Slide,
     Split,
+    Stride,
     Take,
     TakeWhile,
     To,
     Transform,
     Values,
+    Zip,
+    ZipTransform,
 )
 
 
@@ -53,6 +64,14 @@ def times_ten(value: int) -> int:
 
 def to_range(value: int) -> range:
     return range(value)
+
+
+def add_values(left: int, right: int) -> int:
+    return left + right
+
+
+def are_consecutive(left: int, right: int) -> bool:
+    return right - left == 1
 
 
 def join_strings(iterable: Iterable[str]) -> str:
@@ -97,11 +116,34 @@ class RangeTests(unittest.TestCase):
 
 class RangeAdaptorTests(unittest.TestCase):
     def test_all_adaptors_share_the_base_type(self) -> None:
-        adaptors: list[object] = [To(list), Reverse(), Filter(is_positive), Transform(str), Take(1), TakeWhile(is_positive), Drop(1), DropWhile(is_positive), Counted(1), Elements(0), Keys(), Values(), Enumerate(), Concat(), Join(), JoinWith([0]), Split([0])]
-
-        for adaptor in adaptors:
-            with self.subTest(adaptor=adaptor):
-                self.assertIsInstance(adaptor, RangeAdaptor)
+        self.assertIsInstance(To(list), RangeAdaptor)
+        self.assertIsInstance(Reverse[int](), RangeAdaptor)
+        self.assertIsInstance(Filter(is_positive), RangeAdaptor)
+        self.assertIsInstance(Transform(str), RangeAdaptor)
+        self.assertIsInstance(Take[int](1), RangeAdaptor)
+        self.assertIsInstance(TakeWhile(is_positive), RangeAdaptor)
+        self.assertIsInstance(Drop[int](1), RangeAdaptor)
+        self.assertIsInstance(DropWhile(is_positive), RangeAdaptor)
+        self.assertIsInstance(Counted[int](1), RangeAdaptor)
+        self.assertIsInstance(Elements[str](0), RangeAdaptor)
+        self.assertIsInstance(Keys[str](), RangeAdaptor)
+        self.assertIsInstance(Values[int](), RangeAdaptor)
+        self.assertIsInstance(Enumerate[int](), RangeAdaptor)
+        self.assertIsInstance(Concat[int](), RangeAdaptor)
+        self.assertIsInstance(Zip[int]([1]), RangeAdaptor)
+        self.assertIsInstance(ZipTransform[int](add_values, [1]), RangeAdaptor)
+        self.assertIsInstance(Adjacent[int](), RangeAdaptor)
+        self.assertIsInstance(Pairwise[int](), RangeAdaptor)
+        self.assertIsInstance(AdjacentTransform[int, int](add_values), RangeAdaptor)
+        self.assertIsInstance(PairwiseTransform[int, int](add_values), RangeAdaptor)
+        self.assertIsInstance(Chunk[int](1), RangeAdaptor)
+        self.assertIsInstance(Slide[int](1), RangeAdaptor)
+        self.assertIsInstance(ChunkBy[int](are_consecutive), RangeAdaptor)
+        self.assertIsInstance(Stride[int](1), RangeAdaptor)
+        self.assertIsInstance(CartesianProduct[int]([1]), RangeAdaptor)
+        self.assertIsInstance(Join[int](), RangeAdaptor)
+        self.assertIsInstance(JoinWith[int]([0]), RangeAdaptor)
+        self.assertIsInstance(Split[int]([0]), RangeAdaptor)
 
     def test_reverse_accepts_a_normal_iterable(self) -> None:
         result: Range[int] = Reverse[int]()((value for value in [1, 2, 3]))
@@ -167,6 +209,39 @@ class RangeAdaptorTests(unittest.TestCase):
         result = Concat((3, 4), (value for value in [5, 6]))([1, 2])
 
         self.assertEqual(list(result), [1, 2, 3, 4, 5, 6])
+
+    def test_zip_stops_at_the_shortest_iterable(self) -> None:
+        result = Zip[int]([10, 20])([1, 2, 3])
+
+        self.assertEqual(list(result), [(1, 10), (2, 20)])
+
+    def test_zip_transform_applies_to_corresponding_values(self) -> None:
+        result = ZipTransform[int](add_values, [10, 20, 30])([1, 2])
+
+        self.assertEqual(list(result), [11, 22])
+
+    def test_adjacent_and_pairwise_create_overlapping_windows(self) -> None:
+        self.assertEqual(list(Adjacent[int](3)([1, 2, 3, 4])), [(1, 2, 3), (2, 3, 4)])
+        self.assertEqual(list(Pairwise[int]()(range(3))), [(0, 1), (1, 2)])
+
+    def test_adjacent_transform_and_pairwise_transform(self) -> None:
+        self.assertEqual(list(AdjacentTransform[int, int](add_values)([1, 2, 3])), [3, 5])
+        self.assertEqual(list(PairwiseTransform[int, int](add_values)([1, 2, 3])), [3, 5])
+
+    def test_chunk_and_slide(self) -> None:
+        self.assertEqual([list(chunk) for chunk in Chunk[int](2)([1, 2, 3, 4, 5])], [[1, 2], [3, 4], [5]])
+        self.assertEqual([list(window) for window in Slide[int](3)([1, 2, 3, 4])], [[1, 2, 3], [2, 3, 4]])
+
+    def test_chunk_by_and_stride(self) -> None:
+        chunks = ChunkBy[int](are_consecutive)([1, 2, 4, 5, 8])
+
+        self.assertEqual([list(chunk) for chunk in chunks], [[1, 2], [4, 5], [8]])
+        self.assertEqual(list(Stride[int](2)(range(6))), [0, 2, 4])
+
+    def test_cartesian_product(self) -> None:
+        result = CartesianProduct[int]([10, 20])([1, 2])
+
+        self.assertEqual(list(result), [(1, 10), (1, 20), (2, 10), (2, 20)])
 
     def test_join_accepts_an_iterable_of_iterables(self) -> None:
         nested_values: Iterable[Iterable[int]] = iter([[1, 2], (3,), range(4, 6)])
@@ -244,6 +319,17 @@ class PublicNamespaceTests(unittest.TestCase):
             "Transform",
             "Values",
             "Concat",
+            "Zip",
+            "ZipTransform",
+            "Adjacent",
+            "Pairwise",
+            "AdjacentTransform",
+            "PairwiseTransform",
+            "Chunk",
+            "Slide",
+            "ChunkBy",
+            "Stride",
+            "CartesianProduct",
             "SupportsGetItem",
         }
 

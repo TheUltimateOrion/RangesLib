@@ -1,8 +1,11 @@
 from types import SimpleNamespace
 
-from ._adaptors import (Concat, Counted, Drop, DropWhile, Elements, Enumerate,
-                        Filter, Join, JoinWith, Keys, Reverse, Split,
-                        SupportsGetItem, Take, TakeWhile, To, Transform, Values)
+from ._adaptors import (Adjacent, AdjacentTransform, CartesianProduct, Chunk,
+                        ChunkBy, Concat, Counted, Drop, DropWhile, Elements,
+                        Enumerate, Filter, Join, JoinWith, Keys, Pairwise,
+                        PairwiseTransform, Reverse, Slide, Split, Stride,
+                        SupportsGetItem, Take, TakeWhile, To, Transform, Values,
+                        Zip, ZipTransform)
 from ._core import Range, RangeAdaptor, RangeGenerator
 from ._generators import Empty, Indices, Iota, Repeat, Single
 
@@ -19,6 +22,17 @@ Ranges: SimpleNamespace = SimpleNamespace(
     Values=Values,
     Enumerate=Enumerate,
     Concat=Concat,
+    Zip=Zip,
+    ZipTransform=ZipTransform,
+    Adjacent=Adjacent,
+    Pairwise=Pairwise,
+    AdjacentTransform=AdjacentTransform,
+    PairwiseTransform=PairwiseTransform,
+    Chunk=Chunk,
+    Slide=Slide,
+    ChunkBy=ChunkBy,
+    Stride=Stride,
+    CartesianProduct=CartesianProduct,
     Reverse=Reverse(),
     Filter=Filter,
     Take=Take,
@@ -63,5 +77,16 @@ __all__ = [
     "Transform",
     "Values",
     "Concat",
+    "Zip",
+    "ZipTransform",
+    "Adjacent",
+    "Pairwise",
+    "AdjacentTransform",
+    "PairwiseTransform",
+    "Chunk",
+    "Slide",
+    "ChunkBy",
+    "Stride",
+    "CartesianProduct",
     "SupportsGetItem",
 ]

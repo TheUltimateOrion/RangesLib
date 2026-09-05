@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from itertools import islice
+from itertools import islice, product
 from typing import Callable, Iterable, Protocol, cast
 
 from ._core import Range, RangeAdaptor
@@ -126,6 +126,117 @@ class Concat[InputT](RangeAdaptor[InputT, Range[InputT]]):
         for additional_iterable in self.iterables:
             result.extend(additional_iterable)
         return Range(*result)
+
+
+class Zip[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
+    def __init__(self, *iterables: Iterable[InputT]) -> None:
+        self.iterables = iterables
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[tuple[InputT, ...]]:
+        return Range(*zip(iterable, *self.iterables))
+
+
+class ZipTransform[OutputT](RangeAdaptor[object, Range[OutputT]]):
+    def __init__(self, func: Callable[..., OutputT], *iterables: Iterable[object]) -> None:
+        self.func = func
+        self.iterables = iterables
+
+    def __call__(self, iterable: Iterable[object]) -> Range[OutputT]:
+        return Range(*(self.func(*values) for values in zip(iterable, *self.iterables)))
+
+
+class Adjacent[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
+    def __init__(self, width: int = 2) -> None:
+        if width < 1:
+            raise ValueError("Adjacent width must be positive")
+        self.width = width
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[tuple[InputT, ...]]:
+        values = list(iterable)
+        return Range(*(tuple(values[index:index + self.width]) for index in range(len(values) - self.width + 1)))
+
+
+class Pairwise[InputT](Adjacent[InputT]):
+    def __init__(self) -> None:
+        super().__init__(2)
+
+
+class AdjacentTransform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
+    def __init__(self, func: Callable[..., OutputT], width: int = 2) -> None:
+        if width < 1:
+            raise ValueError("AdjacentTransform width must be positive")
+        self.func = func
+        self.width = width
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[OutputT]:
+        values = list(iterable)
+        return Range(*(self.func(*values[index:index + self.width]) for index in range(len(values) - self.width + 1)))
+
+
+class PairwiseTransform[InputT, OutputT](AdjacentTransform[InputT, OutputT]):
+    def __init__(self, func: Callable[[InputT, InputT], OutputT]) -> None:
+        super().__init__(func, 2)
+
+
+class Chunk[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    def __init__(self, size: int) -> None:
+        if size < 1:
+            raise ValueError("Chunk size must be positive")
+        self.size = size
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
+        values = list(iterable)
+        return Range(*(Range(*values[index:index + self.size]) for index in range(0, len(values), self.size)))
+
+
+class Slide[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    def __init__(self, width: int) -> None:
+        if width < 1:
+            raise ValueError("Slide width must be positive")
+        self.width = width
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
+        values = list(iterable)
+        return Range(*(Range(*values[index:index + self.width]) for index in range(len(values) - self.width + 1)))
+
+
+class ChunkBy[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    def __init__(self, predicate: Callable[[InputT, InputT], bool]) -> None:
+        self.predicate = predicate
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
+        values = list(iterable)
+        if not values:
+            return Range()
+
+        chunks: list[Range[InputT]] = []
+        current_chunk = [values[0]]
+        for previous, value in zip(values, values[1:]):
+            if self.predicate(previous, value):
+                current_chunk.append(value)
+            else:
+                chunks.append(Range(*current_chunk))
+                current_chunk = [value]
+        chunks.append(Range(*current_chunk))
+        return Range(*chunks)
+
+
+class Stride[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    def __init__(self, step: int) -> None:
+        if step < 1:
+            raise ValueError("Stride step must be positive")
+        self.step = step
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
+        return Range(*islice(iterable, 0, None, self.step))
+
+
+class CartesianProduct[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
+    def __init__(self, *iterables: Iterable[InputT]) -> None:
+        self.iterables = iterables
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[tuple[InputT, ...]]:
+        return Range(*product(iterable, *self.iterables))
 
 
 class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):

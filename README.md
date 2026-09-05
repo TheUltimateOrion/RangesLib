@@ -20,7 +20,7 @@ assert values == [20, 40, 60]
 
 - `Range[T]`, a list-like typed range container
 - Range generators: `Empty`, `Single`, `Iota`, `Indices`, and `Repeat`
-- Range adaptors: `Filter`, `Transform`, `Take`, `Counted`, `TakeWhile`, `Drop`, `DropWhile`, `Reverse`, `Elements`, `Keys`, `Values`, `Enumerate`, `Join`, `JoinWith`, `Split`, `Concat`, and `To`
+- Range adaptors: `Filter`, `Transform`, `Take`, `Counted`, `TakeWhile`, `Drop`, `DropWhile`, `Reverse`, `Elements`, `Keys`, `Values`, `Enumerate`, `Zip`, `ZipTransform`, `Adjacent`, `Pairwise`, `AdjacentTransform`, `PairwiseTransform`, `Chunk`, `Slide`, `ChunkBy`, `Stride`, `CartesianProduct`, `Join`, `JoinWith`, `Split`, `Concat`, and `To`
 - Readable `|` pipelines for `Range` values
 - Direct adaptor calls for any Python `Iterable`
 - Generic input and output types for transformations and conversions
@@ -120,6 +120,18 @@ from rangeslib import Concat, Counted, Enumerate
 assert list(Counted(2)(value for value in [10, 20, 30])) == [10, 20]
 assert list(Enumerate(1)(["a", "b"])) == [(1, "a"), (2, "b")]
 assert list(Concat([3, 4])([1, 2])) == [1, 2, 3, 4]
+```
+
+The C++23-style zip, adjacent, chunk, and stride adaptors are available as
+eager `Range` operations:
+
+```python
+from rangeslib import Chunk, Pairwise, Stride, Zip
+
+assert list(Zip([10, 20])([1, 2, 3])) == [(1, 10), (2, 20)]
+assert list(Pairwise()([1, 2, 3])) == [(1, 2), (2, 3)]
+assert [list(chunk) for chunk in Chunk(2)([1, 2, 3])] == [[1, 2], [3]]
+assert list(Stride(2)([1, 2, 3, 4])) == [1, 3]
 ```
 
 Or they can be composed with a `Range` using the pipe operator:
