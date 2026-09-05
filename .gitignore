@@ -26,6 +26,8 @@ dist/
 .mypy_cache/
 .pyright/
 .ruff_cache/
+docs/api/
+docs/_build/
 
 # Local configuration
 .env

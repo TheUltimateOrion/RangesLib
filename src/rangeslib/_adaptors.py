@@ -7,11 +7,15 @@ from ._core import Range, RangeAdaptor
 
 
 class SupportsGetItem(Protocol):
+    """Structural requirement for tuple-like indexed elements."""
+
     def __getitem__(self, index: int, /) -> object:
         ...
 
 
 class To[InputT, OutputT](RangeAdaptor[InputT, OutputT]):
+    """Convert an iterable with a supplied collection or factory callable."""
+
     def __init__(self, target_type: Callable[[Iterable[InputT]], OutputT]) -> None:
         self.target_type = target_type
 
@@ -20,11 +24,15 @@ class To[InputT, OutputT](RangeAdaptor[InputT, OutputT]):
 
 
 class Reverse[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Return the input elements in reverse order."""
+
     def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
         return Range(*reversed(list(iterable)))
 
 
 class Filter[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Keep elements for which ``predicate`` returns true."""
+
     def __init__(self, predicate: Callable[[InputT], bool]) -> None:
         self.predicate = predicate
 
@@ -33,6 +41,8 @@ class Filter[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 
 class Transform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
+    """Map each input element to a new value with ``func``."""
+
     def __init__(self, func: Callable[[InputT], OutputT]) -> None:
         self.func = func
 
@@ -41,6 +51,8 @@ class Transform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
 
 
 class Take[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Return at most the first ``n`` elements."""
+
     def __init__(self, n: int) -> None:
         self.n = n
 
@@ -48,6 +60,8 @@ class Take[InputT](RangeAdaptor[InputT, Range[InputT]]):
         return Range(*list(iterable)[:self.n])
 
 class TakeWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Keep the initial elements while ``predicate`` remains true."""
+
     def __init__(self, predicate: Callable[[InputT], bool]) -> None:
         self.predicate = predicate
 
@@ -60,6 +74,8 @@ class TakeWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
         return Range(*result)
 
 class Drop[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Discard the first ``n`` elements and return the remainder."""
+
     def __init__(self, n: int) -> None:
         self.n = n
 
@@ -67,6 +83,8 @@ class Drop[InputT](RangeAdaptor[InputT, Range[InputT]]):
         return Range(*list(iterable)[self.n:])
 
 class DropWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Discard the initial elements while ``predicate`` remains true."""
+
     def __init__(self, predicate: Callable[[InputT], bool]) -> None:
         self.predicate = predicate
 
@@ -82,6 +100,8 @@ class DropWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 
 class Counted[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Take a bounded prefix from the input's current iterator position."""
+
     def __init__(self, count: int) -> None:
         if count < 0:
             raise ValueError("Counted count cannot be negative")
@@ -92,6 +112,8 @@ class Counted[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 
 class Elements[OutputT](RangeAdaptor[SupportsGetItem, Range[OutputT]]):
+    """Project one integer-indexed field from each tuple-like element."""
+
     def __init__(self, index: int) -> None:
         self.index = index
 
@@ -100,16 +122,22 @@ class Elements[OutputT](RangeAdaptor[SupportsGetItem, Range[OutputT]]):
 
 
 class Keys[OutputT](Elements[OutputT]):
+    """Project index ``0`` from each tuple-like element."""
+
     def __init__(self) -> None:
         super().__init__(0)
 
 
 class Values[OutputT](Elements[OutputT]):
+    """Project index ``1`` from each tuple-like element."""
+
     def __init__(self) -> None:
         super().__init__(1)
 
 
 class Enumerate[InputT](RangeAdaptor[InputT, Range[tuple[int, InputT]]]):
+    """Pair each input value with its sequential index."""
+
     def __init__(self, start: int = 0) -> None:
         self.start = start
 
@@ -118,6 +146,8 @@ class Enumerate[InputT](RangeAdaptor[InputT, Range[tuple[int, InputT]]]):
 
 
 class Concat[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Append configured iterables after the piped input."""
+
     def __init__(self, *iterables: Iterable[InputT]) -> None:
         self.iterables = iterables
 
@@ -129,6 +159,8 @@ class Concat[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 
 class Zip[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
+    """Zip the piped input with additional iterables to the shortest length."""
+
     def __init__(self, *iterables: Iterable[InputT]) -> None:
         self.iterables = iterables
 
@@ -137,6 +169,8 @@ class Zip[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
 
 
 class ZipTransform[OutputT](RangeAdaptor[object, Range[OutputT]]):
+    """Apply a callable to corresponding values from several iterables."""
+
     def __init__(self, func: Callable[..., OutputT], *iterables: Iterable[object]) -> None:
         self.func = func
         self.iterables = iterables
@@ -146,6 +180,8 @@ class ZipTransform[OutputT](RangeAdaptor[object, Range[OutputT]]):
 
 
 class Adjacent[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
+    """Return overlapping windows of ``width`` adjacent elements."""
+
     def __init__(self, width: int = 2) -> None:
         if width < 1:
             raise ValueError("Adjacent width must be positive")
@@ -157,11 +193,15 @@ class Adjacent[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
 
 
 class Pairwise[InputT](Adjacent[InputT]):
+    """Return overlapping two-element windows."""
+
     def __init__(self) -> None:
         super().__init__(2)
 
 
 class AdjacentTransform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
+    """Apply a callable to each overlapping adjacent window."""
+
     def __init__(self, func: Callable[..., OutputT], width: int = 2) -> None:
         if width < 1:
             raise ValueError("AdjacentTransform width must be positive")
@@ -174,11 +214,15 @@ class AdjacentTransform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
 
 
 class PairwiseTransform[InputT, OutputT](AdjacentTransform[InputT, OutputT]):
+    """Apply a binary callable to each pair of adjacent elements."""
+
     def __init__(self, func: Callable[[InputT, InputT], OutputT]) -> None:
         super().__init__(func, 2)
 
 
 class Chunk[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    """Partition input into non-overlapping chunks of up to ``size`` elements."""
+
     def __init__(self, size: int) -> None:
         if size < 1:
             raise ValueError("Chunk size must be positive")
@@ -190,6 +234,8 @@ class Chunk[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
 
 
 class Slide[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    """Return overlapping windows of ``width`` elements."""
+
     def __init__(self, width: int) -> None:
         if width < 1:
             raise ValueError("Slide width must be positive")
@@ -201,6 +247,8 @@ class Slide[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
 
 
 class ChunkBy[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    """Split input when the adjacent-value predicate returns false."""
+
     def __init__(self, predicate: Callable[[InputT, InputT], bool]) -> None:
         self.predicate = predicate
 
@@ -222,6 +270,8 @@ class ChunkBy[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
 
 
 class Stride[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Select every ``step``-th input element, starting with the first."""
+
     def __init__(self, step: int) -> None:
         if step < 1:
             raise ValueError("Stride step must be positive")
@@ -232,6 +282,8 @@ class Stride[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 
 class CartesianProduct[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
+    """Return the Cartesian product of the input and configured iterables."""
+
     def __init__(self, *iterables: Iterable[InputT]) -> None:
         self.iterables = iterables
 
@@ -240,6 +292,8 @@ class CartesianProduct[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
 
 
 class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
+    """Flatten one level of nested iterables."""
+
     def __call__(self, iterable: Iterable[Iterable[InputT]]) -> Range[InputT]:
         result: list[InputT] = []
         for sub_iterable in iterable:
@@ -247,6 +301,8 @@ class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
         return Range(*result)
 
 class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
+    """Flatten nested iterables with a separator pattern between them."""
+
     def __init__(self, separator: Iterable[InputT]) -> None:
         self.separator = tuple(separator)
 
@@ -261,6 +317,8 @@ class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
         return Range(*result)
 
 class Split[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    """Split input into ranges wherever a separator pattern occurs."""
+
     def __init__(self, separator: Iterable[InputT]) -> None:
         self.separator = tuple(separator)
 

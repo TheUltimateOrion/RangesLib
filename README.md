@@ -32,7 +32,7 @@ assert values == [20, 40, 60]
 The project requires Python 3.12 or newer.
 
 ```bash
-python -m pip install -e .
+python -m pip install -r requirements.txt
 ```
 
 For local development, create and activate a virtual environment first:
@@ -40,7 +40,7 @@ For local development, create and activate a virtual environment first:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -e .
+python -m pip install -r requirements.txt
 ```
 
 ## Usage
@@ -197,6 +197,22 @@ Run the complete test suite with:
 ```
 
 The same tests run automatically on every push through the workflow in `.github/workflows/tests.yml`.
+
+## Documentation
+
+The documentation source lives in `docs/`:
+
+- `docs/usage.md` explains installation and everyday API usage.
+- `docs/architecture.md` describes package boundaries and type flow.
+- `docs/contributing.md` explains testing and adding adaptors.
+- `docs/_build/html/` contains generated API reference output and is not committed.
+
+Install the optional documentation dependency and generate the API reference:
+
+```bash
+python -m pip install -r requirements.txt
+./generate_docs.sh
+```
 
 ## Playground
 

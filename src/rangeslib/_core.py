@@ -6,6 +6,13 @@ from typing import Iterable
 
 
 class RangeAdaptor[InputT, OutputT](ABC):
+    """Base contract for callable transformations over iterable values.
+
+    Adaptors can be called directly or placed on the right side of ``|``.
+    The reflected operator lets built-in iterables such as ``list``, ``str``,
+    and ``range`` start a pipeline even though they cannot be modified.
+    """
+
     def __ror__(self, iterable: Iterable[InputT]) -> OutputT:
         return self(iterable)
 
@@ -15,10 +22,19 @@ class RangeAdaptor[InputT, OutputT](ABC):
 
 
 class RangeGenerator(ABC):
+    """Marker base class for objects that construct :class:`Range` values."""
+
     pass
 
 
 class Range[T](UserList[T]):
+    """A list-backed, typed container used as the library's pipeline value.
+
+    ``Range`` is eager: constructing or applying an adaptor stores the result
+    immediately. It supports normal list operations and can pipe into any
+    compatible :class:`RangeAdaptor`.
+    """
+
     def __init__(self, *args: T) -> None:
         super().__init__(args)
 

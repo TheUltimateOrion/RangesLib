@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rangeslib"
-version = "0.1.0"
+version = "0.2.0"
 description = "Composable Python ranges and range adaptors"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -12,3 +12,6 @@ requires-python = ">=3.12"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.optional-dependencies]
+docs = ["sphinx>=8", "myst-parser>=4", "sphinx-autodoc-typehints>=3"]
