@@ -39,7 +39,7 @@ only on `Range`, `ranges`, and `views`.
 __init__.py
    ├── ranges.py ───────> _generators.py ──┐
    └── views.py ────────> _adaptors.py ────┼──> _core.py
-                                            └──> Range / base contracts
+                                           └──> Range / base contracts
 ```
 
 Private implementation modules do not depend on the public facade modules.
