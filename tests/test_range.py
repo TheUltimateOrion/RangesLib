@@ -154,9 +154,9 @@ class RangeAdaptorTests(unittest.TestCase):
     def test_elements_keys_and_values_project_pairs(self) -> None:
         pairs = [("a", 1), ("b", 2)]
 
-        self.assertEqual(list(Elements(0)(pairs)), ["a", "b"])
-        self.assertEqual(list(Keys()(pairs)), ["a", "b"])
-        self.assertEqual(list(Values()(pairs)), [1, 2])
+        self.assertEqual(list(Elements[str](0)(pairs)), ["a", "b"])
+        self.assertEqual(list(Keys[str]()(pairs)), ["a", "b"])
+        self.assertEqual(list(Values[int]()(pairs)), [1, 2])
 
     def test_enumerate_supports_a_start_value(self) -> None:
         result: Range[tuple[int, str]] = Enumerate[str](5)(["a", "b"])
@@ -244,6 +244,7 @@ class PublicNamespaceTests(unittest.TestCase):
             "Transform",
             "Values",
             "Concat",
+            "SupportsGetItem",
         }
 
         self.assertEqual(set(vars(Ranges)), expected_names)

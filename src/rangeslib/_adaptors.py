@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from itertools import islice
-from typing import Any, Callable, Iterable
+from typing import Callable, Iterable, Protocol, cast
 
 from ._core import Range, RangeAdaptor
+
+
+class SupportsGetItem(Protocol):
+    def __getitem__(self, index: int, /) -> object:
+        ...
 
 
 class To[InputT, OutputT](RangeAdaptor[InputT, OutputT]):
@@ -86,20 +91,20 @@ class Counted[InputT](RangeAdaptor[InputT, Range[InputT]]):
         return Range(*islice(iterable, self.count))
 
 
-class Elements[InputT](RangeAdaptor[InputT, Range[Any]]):
+class Elements[OutputT](RangeAdaptor[SupportsGetItem, Range[OutputT]]):
     def __init__(self, index: int) -> None:
         self.index = index
 
-    def __call__(self, iterable: Iterable[InputT]) -> Range[Any]:
-        return Range(*(value[self.index] for value in iterable))  # type: ignore[index]
+    def __call__(self, iterable: Iterable[SupportsGetItem]) -> Range[OutputT]:
+        return Range(*(cast(OutputT, value[self.index]) for value in iterable))
 
 
-class Keys[InputT](Elements[InputT]):
+class Keys[OutputT](Elements[OutputT]):
     def __init__(self) -> None:
         super().__init__(0)
 
 
-class Values[InputT](Elements[InputT]):
+class Values[OutputT](Elements[OutputT]):
     def __init__(self) -> None:
         super().__init__(1)
 
