@@ -198,6 +198,19 @@ Run the complete test suite with:
 
 The same tests run automatically on every push through the workflow in `.github/workflows/tests.yml`.
 
+## Documentation deployment
+
+Documentation is published automatically to GitHub Pages when changes are
+pushed to `main`. The workflow in `.github/workflows/docs.yml` builds the
+Sphinx site and deploys it through the `github-pages` environment.
+
+In the repository settings, set **Pages > Build and deployment > Source** to
+**GitHub Actions**. The published site will be available at:
+
+```text
+https://<owner>.github.io/<repository>/
+```
+
 ## Documentation
 
 The documentation source lives in `docs/`:
