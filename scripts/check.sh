@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
 PYTHON="${PYTHON:-python}"
 
 echo "Checking Ruff lint rules..."
@@ -10,7 +12,7 @@ echo "Checking Ruff lint rules..."
 echo "Checking Ruff formatting..."
 "$PYTHON" -m ruff format --check .
 
-PYTHON="$PYTHON" ./typecheck.sh
+PYTHON="$PYTHON" "$SCRIPT_DIR/typecheck.sh"
 
 echo "Running tests with branch coverage..."
 "$PYTHON" -m coverage erase

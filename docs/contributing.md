@@ -13,7 +13,7 @@ python -m pip install -e ".[dev]"
 The helper scripts use the active `python` on `PATH`. They do not require a
 virtual environment named `.venv`, so alternate environment managers also
 work. Set the `PYTHON` environment variable if you want the scripts to use a
-specific interpreter, for example `PYTHON=python3.13 ./check.sh`.
+specific interpreter, for example `PYTHON=python3.13 ./scripts/check.sh`.
 
 ## Formatting and quality workflow
 
@@ -24,7 +24,7 @@ Formatting and checking are intentionally separate operations.
 Run:
 
 ```bash
-./format.sh
+./scripts/format.sh
 ```
 
 This is a **mutating** developer command. It runs:
@@ -39,7 +39,7 @@ files such as `playground.py`, `docs/conf.py`, and static type-check fixtures
 are formatted consistently too. Ruff still honors its configured and standard
 exclusions.
 
-Review the resulting diff before committing. CI never invokes `format.sh` and
+Review the resulting diff before committing. CI never invokes `scripts/format.sh` and
 never automatically commits formatting changes.
 
 ### Validate the source tree
@@ -47,7 +47,7 @@ never automatically commits formatting changes.
 Run:
 
 ```bash
-./check.sh
+./scripts/check.sh
 ```
 
 This is the same quality command used by the GitHub Actions quality job. It
@@ -68,22 +68,22 @@ ignored by Git.
 Run:
 
 ```bash
-./check_all.sh
+./scripts/check_all.sh
 ```
 
-This runs `check.sh`, then builds Sphinx documentation with warnings promoted
+This runs `scripts/check.sh`, then builds Sphinx documentation with warnings promoted
 to errors. GitHub Actions uses this complete gate before deployment.
 
 For a faster test-only pass, use:
 
 ```bash
-./run_tests.sh
+./scripts/run_tests.sh
 ```
 
 For the two static type checkers only, use:
 
 ```bash
-./typecheck.sh
+./scripts/typecheck.sh
 ```
 
 Ruff validates syntax, style, and code quality. Mypy and Pyright intentionally
@@ -95,7 +95,7 @@ Pylance, while mypy provides an independent implementation.
 Run:
 
 ```bash
-./check_package.sh
+./scripts/check_package.sh
 ```
 
 This mirrors the package CI job. It builds the sdist and wheel, creates a
@@ -105,9 +105,9 @@ basic public behavior and the packaged `py.typed` marker outside the checkout.
 A good pre-push sequence is therefore:
 
 ```bash
-./format.sh
-./check_all.sh
-./check_package.sh
+./scripts/format.sh
+./scripts/check_all.sh
+./scripts/check_package.sh
 ```
 
 ## CI mapping
@@ -118,15 +118,15 @@ drifting apart.
 
 | Local command | GitHub Actions use | Purpose |
 | --- | --- | --- |
-| `./format.sh` | Local only | Apply Ruff fixes and formatting |
-| `./run_tests.sh` | Python 3.12/3.13/3.14 matrix | Runtime compatibility |
-| `./check.sh` | Called by `./check_all.sh` | Ruff, mypy, Pyright, coverage |
-| `./check_all.sh` | `Quality gates` job | Source quality plus strict docs |
-| `./typecheck.sh` | Called by `./check.sh` | mypy and Pyright only |
-| `./check_package.sh` | `Build and install package` job | Distribution and installed-wheel validation |
-| `./generate_docs.sh` | Documentation deployment | Build the deployable Sphinx site |
+| `./scripts/format.sh` | Local only | Apply Ruff fixes and formatting |
+| `./scripts/run_tests.sh` | Python 3.12/3.13/3.14 matrix | Runtime compatibility |
+| `./scripts/check.sh` | Called by `./scripts/check_all.sh` | Ruff, mypy, Pyright, coverage |
+| `./scripts/check_all.sh` | `Quality gates` job | Source quality plus strict docs |
+| `./scripts/typecheck.sh` | Called by `./scripts/check.sh` | mypy and Pyright only |
+| `./scripts/check_package.sh` | `Build and install package` job | Distribution and installed-wheel validation |
+| `./scripts/generate_docs.sh` | Documentation deployment | Build the deployable Sphinx site |
 
-A CI formatting failure should be fixed locally with `./format.sh`, reviewed,
+A CI formatting failure should be fixed locally with `./scripts/format.sh`, reviewed,
 committed, and pushed. The CI workflow must remain read-only with respect to
 tracked source code.
 
@@ -199,6 +199,6 @@ public behavior, coverage, linting, formatting, typing, documentation, package
 building, and installation from the built wheel.
 
 Before opening or updating a pull request, run the pre-push sequence above. If
-CI reports `ruff format --check` failures, run `./format.sh` locally and commit
+CI reports `ruff format --check` failures, run `./scripts/format.sh` locally and commit
 the resulting formatting changes rather than changing the CI workflow to
 format code automatically.

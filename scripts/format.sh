@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "$(dirname "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
 PYTHON="${PYTHON:-python}"
 
 echo "Fixing Ruff lint issues..."
@@ -10,4 +12,4 @@ echo "Fixing Ruff lint issues..."
 echo "Formatting Python files with Ruff..."
 "$PYTHON" -m ruff format .
 
-echo "Formatting complete. Run ./check.sh before committing."
+echo "Formatting complete. Run ./scripts/check.sh before committing."

@@ -257,13 +257,13 @@ Coverage is enforced as a guardrail, not as a substitute for behavioral
 contracts. CI also runs static typing, linting, documentation builds, package
 builds, and an installed-wheel smoke test.
 
-Developer automation follows the same contract. `format.sh` is intentionally a
-local-only mutating command, while `check.sh`, `run_tests.sh`,
-`check_package.sh`, and `generate_docs.sh` are invoked directly by GitHub
-Actions. Keeping executable policy in repository scripts prevents local and CI
-commands from drifting. Documentation deployment is triggered only after the
-complete CI workflow succeeds on `main`, and it builds the exact commit SHA that
-passed CI.
+Developer automation lives in `scripts/`. `scripts/format.sh` is intentionally
+a local-only mutating command, while `scripts/check_all.sh`,
+`scripts/run_tests.sh`, `scripts/check_package.sh`, and
+`scripts/generate_docs.sh` are invoked directly by GitHub Actions. Keeping
+executable policy in repository scripts prevents local and CI commands from
+drifting. Documentation deployment is triggered only after the complete CI
+workflow succeeds on `main`, and it builds the exact commit SHA that passed CI.
 
 ## C++ correspondence
 

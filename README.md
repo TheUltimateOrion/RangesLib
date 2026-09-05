@@ -120,24 +120,24 @@ python -m pip install -e ".[dev]"
 
 ### Format code locally
 
-`format.sh` is the mutating developer command. It applies Ruff's safe automatic
+`scripts/format.sh` is the mutating developer command. It applies Ruff's safe automatic
 lint fixes and then formats every Python file Ruff discovers in the repository:
 
 ```bash
-./format.sh
+./scripts/format.sh
 ```
 
 CI never runs this command because CI should not silently modify source code.
 
 ### Run the local quality gate
 
-`check.sh` is the read-only source-quality gate used by the complete CI check.
-It checks the whole
-repository with Ruff, checks formatting, runs both mypy and Pyright, runs the
+`scripts/check.sh` is the read-only source-quality gate used by the complete
+CI check. It checks the whole repository with Ruff, checks formatting, runs
+both mypy and Pyright, and runs the
 test suite with branch coverage:
 
 ```bash
-./check.sh
+./scripts/check.sh
 ```
 
 It may create ignored artifacts such as `.coverage`, but it does not rewrite
@@ -147,13 +147,13 @@ Run the complete release-quality gate, including a Sphinx build with warnings
 as errors, with:
 
 ```bash
-./check_all.sh
+./scripts/check_all.sh
 ```
 
 For a fast static-type-only pass, run:
 
 ```bash
-./typecheck.sh
+./scripts/typecheck.sh
 ```
 
 Ruff checks syntax, style, and common quality issues. Mypy and Pyright both
@@ -164,28 +164,28 @@ analyzer.
 For a faster runtime-only test pass:
 
 ```bash
-./run_tests.sh
+./scripts/run_tests.sh
 ```
 
 To validate the distributable source archive and wheel in an isolated
 environment:
 
 ```bash
-./check_package.sh
+./scripts/check_package.sh
 ```
 
 Run the manual playground with:
 
 ```bash
-./run_playground.sh
+./scripts/run_playground.sh
 ```
 
 A recommended pre-push sequence is:
 
 ```bash
-./format.sh
-./check_all.sh
-./check_package.sh
+./scripts/format.sh
+./scripts/check_all.sh
+./scripts/check_package.sh
 ```
 
 The same scripts are invoked by GitHub Actions, which keeps local validation and
@@ -196,7 +196,7 @@ CI behavior synchronized.
 Build the Sphinx site with:
 
 ```bash
-./generate_docs.sh
+./scripts/generate_docs.sh
 ```
 
 Generated HTML is written to `docs/_build/html/`.
