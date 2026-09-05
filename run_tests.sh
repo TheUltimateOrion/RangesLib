@@ -2,4 +2,5 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-PYTHONPATH=src exec python -m unittest discover -s tests -v
+PYTHON="${PYTHON:-python}"
+PYTHONPATH=src exec "$PYTHON" -m unittest discover -s tests -v

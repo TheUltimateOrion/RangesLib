@@ -110,36 +110,67 @@ invariants.
 
 ## Development
 
-Run the complete unit suite:
+Create and activate a virtual environment, then install the development tools:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+```
+
+### Format code locally
+
+`format.sh` is the mutating developer command. It applies Ruff's safe automatic
+lint fixes and then formats every Python file Ruff discovers in the repository:
+
+```bash
+./format.sh
+```
+
+CI never runs this command because CI should not silently modify source code.
+
+### Run the local quality gate
+
+`check.sh` is the read-only source-quality gate used by CI. It checks the whole
+repository with Ruff, checks formatting, runs mypy, runs the test suite with
+branch coverage, and builds the Sphinx documentation with warnings as errors:
+
+```bash
+./check.sh
+```
+
+It may create ignored artifacts such as `.coverage` and `docs/_build`, but it
+does not rewrite tracked source files.
+
+For a faster runtime-only test pass:
 
 ```bash
 ./run_tests.sh
 ```
 
-Run coverage with the same threshold used by CI:
+To validate the distributable source archive and wheel in an isolated
+environment:
 
 ```bash
-coverage run -m unittest discover -s tests
-coverage report
+./check_package.sh
 ```
 
-Run the manual playground:
+Run the manual playground with:
 
 ```bash
 ./run_playground.sh
 ```
 
-After installing `.[dev]`, the full local quality gate is:
+A recommended pre-push sequence is:
 
 ```bash
-ruff check src tests
-ruff format --check src
-mypy src/rangeslib tests/typecheck/public_api.py
-coverage run -m unittest discover -s tests
-coverage report
-python -m sphinx -W --keep-going -b html docs docs/_build/html
-python -m build
+./format.sh
+./check.sh
+./check_package.sh
 ```
+
+The same scripts are invoked by GitHub Actions, which keeps local validation and
+CI behavior synchronized.
 
 ## Documentation
 
@@ -149,8 +180,12 @@ Build the Sphinx site with:
 ./generate_docs.sh
 ```
 
-Generated HTML is written to `docs/_build/html/`. Documentation is published
-to GitHub Pages from `main`.
+Generated HTML is written to `docs/_build/html/`.
+
+Documentation deployment is gated by CI. A push to `main` first runs the
+**Tests and quality** workflow. GitHub Pages is built and deployed only after
+that workflow succeeds, and the deployment workflow checks out the exact commit
+SHA that CI validated.
 
 ## Compatibility and releases
 

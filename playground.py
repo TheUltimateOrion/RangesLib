@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 from rangeslib import ranges, views
 
 
@@ -9,11 +11,15 @@ def times_ten(value: int) -> int:
     return value * 10
 
 
+def join_strings(values: Iterable[str]) -> str:
+    return "".join(values)
+
+
 def main() -> None:
     cool_str: str = (
         "abcdefghijklmnopqrstuvwxyz"
         | views.take(5)
-        | views.to("".join)
+        | views.to(join_strings)
     )
     numbers = (
         ranges.iota(1, 11)

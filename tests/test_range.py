@@ -228,12 +228,22 @@ class RangeAdaptorTests(unittest.TestCase):
         self.assertEqual(list(Pairwise[int]()(range(3))), [(0, 1), (1, 2)])
 
     def test_adjacent_transform_and_pairwise_transform(self) -> None:
-        self.assertEqual(list(AdjacentTransform[int, int](add_values)([1, 2, 3])), [3, 5])
-        self.assertEqual(list(PairwiseTransform[int, int](add_values)([1, 2, 3])), [3, 5])
+        self.assertEqual(
+            list(AdjacentTransform[int, int](add_values)([1, 2, 3])), [3, 5]
+        )
+        self.assertEqual(
+            list(PairwiseTransform[int, int](add_values)([1, 2, 3])), [3, 5]
+        )
 
     def test_chunk_and_slide(self) -> None:
-        self.assertEqual([list(chunk) for chunk in Chunk[int](2)([1, 2, 3, 4, 5])], [[1, 2], [3, 4], [5]])
-        self.assertEqual([list(window) for window in Slide[int](3)([1, 2, 3, 4])], [[1, 2, 3], [2, 3, 4]])
+        self.assertEqual(
+            [list(chunk) for chunk in Chunk[int](2)([1, 2, 3, 4, 5])],
+            [[1, 2], [3, 4], [5]],
+        )
+        self.assertEqual(
+            [list(window) for window in Slide[int](3)([1, 2, 3, 4])],
+            [[1, 2, 3], [2, 3, 4]],
+        )
 
     def test_chunk_by_and_stride(self) -> None:
         chunks = ChunkBy[int](are_consecutive)([1, 2, 4, 5, 8])
@@ -254,7 +264,10 @@ class RangeAdaptorTests(unittest.TestCase):
     def test_join_with_inserts_a_pattern_between_iterables(self) -> None:
         nested_values: Iterable[Iterable[int]] = iter([[1, 2], (3,), range(4, 6)])
 
-        self.assertEqual(list(JoinWith[int]([0, 0])(nested_values)), [1, 2, 0, 0, 3, 0, 0, 4, 5])
+        self.assertEqual(
+            list(JoinWith[int]([0, 0])(nested_values)),
+            [1, 2, 0, 0, 3, 0, 0, 4, 5],
+        )
 
     def test_split_accepts_a_pattern_and_preserves_empty_chunks(self) -> None:
         result = Split([0, 0])([1, 2, 0, 0, 3, 0, 0])
@@ -308,7 +321,9 @@ class PublicNamespaceTests(unittest.TestCase):
         self.assertEqual(list("abc" | views.take(2)), ["a", "b"])
 
     def test_package_exposes_only_the_clean_facade(self) -> None:
-        self.assertEqual(set(vars(rangeslib)) & {"Ranges", "Filter", "Iota", "Take"}, set())
+        self.assertEqual(
+            set(vars(rangeslib)) & {"Ranges", "Filter", "Iota", "Take"}, set()
+        )
         self.assertIs(ranges.iota(1, 3).__class__, Range)
         self.assertEqual(list(views.take(2)([1, 2, 3])), [1, 2])
 

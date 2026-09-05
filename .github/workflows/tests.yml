@@ -28,7 +28,7 @@ jobs:
         run: python -m pip install --editable .
 
       - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+        run: ./run_tests.sh
 
   quality:
     name: Quality gates
@@ -48,22 +48,8 @@ jobs:
       - name: Install development dependencies
         run: python -m pip install --editable ".[dev]"
 
-      - name: Lint
-        run: ruff check src tests
-
-      - name: Check source formatting
-        run: ruff format --check src
-
-      - name: Type check
-        run: mypy src/rangeslib tests/typecheck/public_api.py
-
-      - name: Run tests with coverage
-        run: |
-          coverage run -m unittest discover -s tests
-          coverage report
-
-      - name: Build documentation with warnings as errors
-        run: python -m sphinx -W --keep-going -b html docs docs/_build/html
+      - name: Run local-equivalent quality gate
+        run: ./check.sh
 
   package:
     name: Build and install package
@@ -80,23 +66,8 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: Install build frontend
+      - name: Install package-build tooling
         run: python -m pip install build
 
-      - name: Build source and wheel distributions
-        run: python -m build
-
-      - name: Install built wheel
-        run: python -m pip install --force-reinstall dist/*.whl
-
-      - name: Smoke test installed wheel outside the checkout
-        working-directory: /tmp
-        run: |
-          python - <<'PY'
-          from importlib.resources import files
-          from rangeslib import Range, ranges, views
-
-          assert list(Range(1, 2, 3)[1:]) == [2, 3]
-          assert list(ranges.iota(1, 5) | views.take(2)) == [1, 2]
-          assert files("rangeslib").joinpath("py.typed").is_file()
-          PY
+      - name: Build and smoke-test distributions
+        run: ./check_package.sh

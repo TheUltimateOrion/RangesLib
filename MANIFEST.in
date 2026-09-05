@@ -1,5 +1,8 @@
 include LICENSE
 include README.md
+include format.sh
+include check_package.sh
+include check.sh
 include requirements.txt
 include generate_docs.sh
 include run_playground.sh

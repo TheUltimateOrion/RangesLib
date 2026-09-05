@@ -1,8 +1,37 @@
 import itertools
 import unittest
+from collections.abc import Callable
 
 import rangeslib
 from rangeslib import Range, ranges, views
+
+
+def is_even(value: int) -> bool:
+    return value % 2 == 0
+
+
+def is_less_than_three(value: int) -> bool:
+    return value < 3
+
+
+def add_values(left: int, right: int) -> int:
+    return left + right
+
+
+def multiply_values(left: int, right: int) -> int:
+    return left * right
+
+
+def are_consecutive(left: int, right: int) -> bool:
+    return right - left == 1
+
+
+def is_odd(value: int) -> bool:
+    return value % 2 == 1
+
+
+def times_ten(value: int) -> int:
+    return value * 10
 
 
 class PublicGeneratorTests(unittest.TestCase):
@@ -13,7 +42,9 @@ class PublicGeneratorTests(unittest.TestCase):
         self.assertEqual(list(ranges.indices(3)), [0, 1, 2])
         self.assertEqual(list(ranges.repeat("x", 3)), ["x", "x", "x"])
 
-    def test_non_positive_generator_counts_follow_builtin_range_and_list_rules(self) -> None:
+    def test_non_positive_generator_counts_follow_builtin_range_and_list_rules(
+        self,
+    ) -> None:
         self.assertEqual(list(ranges.indices(-2)), [])
         self.assertEqual(list(ranges.repeat("x", -2)), [])
         self.assertEqual(list(ranges.iota(5, 2)), [])
@@ -24,16 +55,18 @@ class PublicViewTests(unittest.TestCase):
         values = [1, 2, 3, 4]
 
         self.assertEqual(list(views.reverse()(values)), [4, 3, 2, 1])
-        self.assertEqual(list(views.filter(lambda x: x % 2 == 0)(values)), [2, 4])
+        self.assertEqual(list(views.filter(is_even)(values)), [2, 4])
         self.assertEqual(list(views.transform(str)(values)), ["1", "2", "3", "4"])
         self.assertEqual(list(views.take(2)(values)), [1, 2])
         self.assertEqual(list(views.take(-1)(values)), [1, 2, 3])
         self.assertEqual(list(views.drop(2)(values)), [3, 4])
         self.assertEqual(list(views.drop(-1)(values)), [4])
-        self.assertEqual(list(views.takewhile(lambda x: x < 3)(values)), [1, 2])
-        self.assertEqual(list(views.dropwhile(lambda x: x < 3)(values)), [3, 4])
+        self.assertEqual(list(views.takewhile(is_less_than_three)(values)), [1, 2])
+        self.assertEqual(list(views.dropwhile(is_less_than_three)(values)), [3, 4])
 
-    def test_bounded_take_and_counted_leave_a_one_shot_iterator_positioned(self) -> None:
+    def test_bounded_take_and_counted_leave_a_one_shot_iterator_positioned(
+        self,
+    ) -> None:
         take_source = iter([1, 2, 3, 4])
         counted_source = iter([1, 2, 3, 4])
 
@@ -67,7 +100,7 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(list(views.concat([3], [4, 5])([1, 2])), [1, 2, 3, 4, 5])
         self.assertEqual(list(views.zip([10, 20])([1, 2, 3])), [(1, 10), (2, 20)])
         self.assertEqual(
-            list(views.zip_transform(lambda a, b: a + b, [10, 20])([1, 2, 3])),
+            list(views.zip_transform(add_values, [10, 20])([1, 2, 3])),
             [11, 22],
         )
         self.assertEqual(
@@ -78,9 +111,11 @@ class PublicViewTests(unittest.TestCase):
     def test_window_and_grouping_views(self) -> None:
         self.assertEqual(list(views.adjacent(3)([1, 2, 3, 4])), [(1, 2, 3), (2, 3, 4)])
         self.assertEqual(list(views.pairwise()([1, 2, 3])), [(1, 2), (2, 3)])
-        self.assertEqual(list(views.adjacent_transform(lambda a, b: a + b, 2)([1, 2, 3])), [3, 5])
         self.assertEqual(
-            list(views.pairwise_transform(lambda a, b: a * b)([1, 2, 3])),
+            list(views.adjacent_transform(add_values, 2)([1, 2, 3])), [3, 5]
+        )
+        self.assertEqual(
+            list(views.pairwise_transform(multiply_values)([1, 2, 3])),
             [2, 6],
         )
         self.assertEqual(
@@ -92,23 +127,23 @@ class PublicViewTests(unittest.TestCase):
             [[1, 2, 3], [2, 3, 4]],
         )
         self.assertEqual(
-            [
-                list(chunk)
-                for chunk in views.chunk_by(lambda a, b: b - a == 1)(
-                    [1, 2, 4, 5, 8]
-                )
-            ],
+            [list(chunk) for chunk in views.chunk_by(are_consecutive)([1, 2, 4, 5, 8])],
             [[1, 2], [4, 5], [8]],
         )
-        self.assertEqual(list(views.chunk_by(lambda a, b: True)([])), [])
+        empty_chunks: Range[Range[int]] = views.chunk_by(are_consecutive)([])
+        self.assertEqual(list(empty_chunks), [])
         self.assertEqual(list(views.stride(2)(range(6))), [0, 2, 4])
 
     def test_join_split_and_conversion_views(self) -> None:
-        nested = [[1, 2], [3], [4, 5]]
+        nested: list[list[int]] = [[1, 2], [3], [4, 5]]
 
         self.assertEqual(list(views.join()(nested)), [1, 2, 3, 4, 5])
         self.assertEqual(list(views.join_with([0])(nested)), [1, 2, 0, 3, 0, 4, 5])
-        self.assertEqual(list(views.join_with([])(nested)), [1, 2, 3, 4, 5])
+
+        empty_separator: list[int] = []
+        joined_without_separator = views.join_with(empty_separator)(nested)
+        self.assertEqual(list(joined_without_separator), [1, 2, 3, 4, 5])
+
         self.assertEqual(
             [list(chunk) for chunk in views.split([0])([1, 0, 2, 0])],
             [[1], [2], []],
@@ -116,7 +151,7 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(views.to(tuple)([1, 2, 3]), (1, 2, 3))
 
     def test_public_validation_contract(self) -> None:
-        invalid_factories = [
+        invalid_factories: list[Callable[[], object]] = [
             lambda: views.counted(-1),
             lambda: views.adjacent(0),
             lambda: views.adjacent_transform(sum, 0),
@@ -136,8 +171,8 @@ class PublicViewTests(unittest.TestCase):
     def test_pipeline_uses_only_the_public_facade(self) -> None:
         result = (
             ranges.iota(1, 8)
-            | views.filter(lambda value: value % 2 == 1)
-            | views.transform(lambda value: value * 10)
+            | views.filter(is_odd)
+            | views.transform(times_ten)
             | views.take(3)
             | views.to(tuple)
         )

@@ -97,8 +97,8 @@ The dispatch sequence is:
 construction:
 
 ```python
-Range(1, 2, 3)      # three integer elements
-Range([1, 2, 3])    # one list element
+Range(1, 2, 3)  # three integer elements
+Range([1, 2, 3])  # one list element
 ```
 
 The positional constructor is an intentional API choice. Because `UserList`
@@ -256,6 +256,14 @@ The test suite has three complementary layers:
 Coverage is enforced as a guardrail, not as a substitute for behavioral
 contracts. CI also runs static typing, linting, documentation builds, package
 builds, and an installed-wheel smoke test.
+
+Developer automation follows the same contract. `format.sh` is intentionally a
+local-only mutating command, while `check.sh`, `run_tests.sh`,
+`check_package.sh`, and `generate_docs.sh` are invoked directly by GitHub
+Actions. Keeping executable policy in repository scripts prevents local and CI
+commands from drifting. Documentation deployment is triggered only after the
+complete CI workflow succeeds on `main`, and it builds the exact commit SHA that
+passed CI.
 
 ## C++ correspondence
 

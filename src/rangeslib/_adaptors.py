@@ -9,8 +9,7 @@ from ._core import Range, RangeAdaptor
 class SupportsGetItem(Protocol):
     """Structural requirement for tuple-like indexed elements."""
 
-    def __getitem__(self, index: int, /) -> object:
-        ...
+    def __getitem__(self, index: int, /) -> object: ...
 
 
 class To[InputT, OutputT](RangeAdaptor[InputT, OutputT]):

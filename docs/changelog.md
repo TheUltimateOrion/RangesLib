@@ -24,6 +24,9 @@ change independently.
   protocols so pipeline element types can be inferred at call/pipe time.
 - Development helper scripts use the active Python environment rather than
   assuming a repository-local `.venv`.
+- CI now invokes repository validation scripts directly, and GitHub Pages
+  deployment waits for a successful CI run on `main` before building the exact
+  validated commit.
 - Documentation now distinguishes end-user installation from contributor setup
   and documents materialization, iterator consumption, validation, extension,
   and compatibility contracts.
@@ -35,6 +38,9 @@ change independently.
 - Static public API type assertions.
 - Coverage, linting, formatting, typing, package-build, wheel-install, and
   documentation quality gates in CI.
+- `format.sh`, `check.sh`, and `check_package.sh` developer commands so local
+  formatting, quality validation, and distribution validation use the same
+  executable policy as CI.
 - Project metadata, repository/documentation links, migration notes, and this
   changelog.
 

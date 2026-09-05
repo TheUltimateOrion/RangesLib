@@ -2,4 +2,5 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
-PYTHONPATH=src exec python playground.py
+PYTHON="${PYTHON:-python}"
+PYTHONPATH=src exec "$PYTHON" playground.py

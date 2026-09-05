@@ -12,42 +12,114 @@ python -m pip install -e ".[dev]"
 
 The helper scripts use the active `python` on `PATH`. They do not require a
 virtual environment named `.venv`, so alternate environment managers also
-work.
+work. Set the `PYTHON` environment variable if you want the scripts to use a
+specific interpreter, for example `PYTHON=python3.13 ./check.sh`.
 
-## Quality checks
+## Formatting and quality workflow
 
-Run the unit suite:
+Formatting and checking are intentionally separate operations.
+
+### Apply formatting
+
+Run:
+
+```bash
+./format.sh
+```
+
+This is a **mutating** developer command. It runs:
+
+```text
+ruff check . --fix
+ruff format .
+```
+
+The repository root is used instead of a hard-coded `src tests` list, so Python
+files such as `playground.py`, `docs/conf.py`, and static type-check fixtures
+are formatted consistently too. Ruff still honors its configured and standard
+exclusions.
+
+Review the resulting diff before committing. CI never invokes `format.sh` and
+never automatically commits formatting changes.
+
+### Validate the source tree
+
+Run:
+
+```bash
+./check.sh
+```
+
+This is the same quality command used by the GitHub Actions quality job. It
+performs, in order:
+
+1. `ruff check .`
+2. `ruff format --check .`
+3. mypy over the package and public API type assertions
+4. the unit suite under branch coverage, including the configured coverage
+   threshold
+5. a Sphinx build with warnings promoted to errors
+
+The script does not rewrite tracked source files. Coverage and documentation
+build artifacts are ignored by Git.
+
+For a faster test-only pass, use:
 
 ```bash
 ./run_tests.sh
 ```
 
-Run the same coverage threshold used by CI:
+### Validate distributions
+
+Run:
 
 ```bash
-coverage run -m unittest discover -s tests
-coverage report
+./check_package.sh
 ```
 
-Run linting, formatting validation, and static typing:
+This mirrors the package CI job. It builds the sdist and wheel, creates a
+temporary isolated virtual environment, installs the built wheel, then verifies
+basic public behavior and the packaged `py.typed` marker outside the checkout.
+
+A good pre-push sequence is therefore:
 
 ```bash
-ruff check src tests
-ruff format --check src
-mypy src/rangeslib tests/typecheck/public_api.py
+./format.sh
+./check.sh
+./check_package.sh
 ```
 
-Build the documentation with warnings treated as errors:
+## CI mapping
 
-```bash
-./generate_docs.sh
-```
+GitHub Actions deliberately delegates to repository scripts instead of
+reimplementing their commands in YAML. This keeps local development and CI from
+drifting apart.
 
-Build the distributions:
+| Local command | GitHub Actions use | Purpose |
+| --- | --- | --- |
+| `./format.sh` | Local only | Apply Ruff fixes and formatting |
+| `./run_tests.sh` | Python 3.12/3.13/3.14 matrix | Runtime compatibility |
+| `./check.sh` | `Quality gates` job | Lint, formatting, typing, coverage, docs |
+| `./check_package.sh` | `Build and install package` job | Distribution and installed-wheel validation |
+| `./generate_docs.sh` | Documentation deployment | Build the deployable Sphinx site |
 
-```bash
-python -m build
-```
+A CI formatting failure should be fixed locally with `./format.sh`, reviewed,
+committed, and pushed. The CI workflow must remain read-only with respect to
+tracked source code.
+
+## Documentation deployment
+
+GitHub Pages deployment is a separate CD workflow, but it is not independent of
+CI. The deployment workflow listens for completion of the **Tests and quality**
+workflow on `main` and runs only when that workflow concluded successfully.
+
+The deployment workflow checks out `workflow_run.head_sha`, so it builds the
+exact commit that passed CI rather than whatever commit happens to be at the tip
+of `main` when the deployment runner starts.
+
+For repositories using protected branches, configure `main` to require the CI
+jobs before merge. Repository settings are outside version-controlled workflow
+files, so that protection must be enabled in GitHub itself.
 
 ## Test organization
 
@@ -102,3 +174,8 @@ manually duplicate the version in Sphinx configuration.
 CI runs on pushes and pull requests. It validates supported Python versions,
 public behavior, coverage, linting, formatting, typing, documentation, package
 building, and installation from the built wheel.
+
+Before opening or updating a pull request, run the pre-push sequence above. If
+CI reports `ruff format --check` failures, run `./format.sh` locally and commit
+the resulting formatting changes rather than changing the CI workflow to
+format code automatically.
