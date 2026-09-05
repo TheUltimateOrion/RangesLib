@@ -47,26 +47,28 @@ class Range[T](UserList[T]):
         return adaptor(self)
 
     @overload
-    def __getitem__(self, index: SupportsIndex, /) -> T: ...
+    def __getitem__(self, index: SupportsIndex) -> T: ...
 
     @overload
-    def __getitem__(self, index: slice, /) -> Range[T]: ...
+    def __getitem__(self, index: slice[SupportsIndex | None]) -> Range[T]: ...
 
-    def __getitem__(self, index: SupportsIndex | slice, /) -> T | Range[T]:
+    def __getitem__(
+        self, index: SupportsIndex | slice[SupportsIndex | None]
+    ) -> T | Range[T]:
         if isinstance(index, slice):
             return Range(*self.data[index])
         return self.data[index]
 
-    def __add__(self, other: Iterable[T], /) -> Range[T]:
+    def __add__(self, other: Iterable[T]) -> Range[T]:
         return Range(*self.data, *other)
 
-    def __radd__(self, other: Iterable[T], /) -> Range[T]:
+    def __radd__(self, other: Iterable[T]) -> Range[T]:
         return Range(*other, *self.data)
 
-    def __mul__(self, count: SupportsIndex, /) -> Range[T]:
+    def __mul__(self, count: int) -> Range[T]:
         return Range(*(self.data * count))
 
-    def __rmul__(self, count: SupportsIndex, /) -> Range[T]:
+    def __rmul__(self, count: int) -> Range[T]:
         return self * count
 
     def copy(self) -> Range[T]:

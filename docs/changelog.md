@@ -4,7 +4,21 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
-## 0.3.1 - Unreleased
+## 0.3.2 - Unreleased
+
+### Added
+
+- Ruff, mypy, and Pyright as required, independently configured validation
+  categories in the local quality gate and CI.
+- `typecheck.sh` for running mypy and Pyright without the full test, coverage,
+  package, and documentation checks.
+
+### Changed
+
+- The CI quality job now explicitly reports its Ruff, mypy, and Pyright gate.
+- `check.sh` forwards its selected `PYTHON` interpreter to `typecheck.sh`.
+
+## 0.3.1
 
 ### Fixed
 

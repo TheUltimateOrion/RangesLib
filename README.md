@@ -131,16 +131,35 @@ CI never runs this command because CI should not silently modify source code.
 
 ### Run the local quality gate
 
-`check.sh` is the read-only source-quality gate used by CI. It checks the whole
-repository with Ruff, checks formatting, runs mypy, runs the test suite with
-branch coverage, and builds the Sphinx documentation with warnings as errors:
+`check.sh` is the read-only source-quality gate used by the complete CI check.
+It checks the whole
+repository with Ruff, checks formatting, runs both mypy and Pyright, runs the
+test suite with branch coverage:
 
 ```bash
 ./check.sh
 ```
 
-It may create ignored artifacts such as `.coverage` and `docs/_build`, but it
-does not rewrite tracked source files.
+It may create ignored artifacts such as `.coverage`, but it does not rewrite
+tracked source files.
+
+Run the complete release-quality gate, including a Sphinx build with warnings
+as errors, with:
+
+```bash
+./check_all.sh
+```
+
+For a fast static-type-only pass, run:
+
+```bash
+./typecheck.sh
+```
+
+Ruff checks syntax, style, and common quality issues. Mypy and Pyright both
+check static types: they deliberately use separate type-checking engines, so a
+change must satisfy both the Python implementation and the Pylance-compatible
+analyzer.
 
 For a faster runtime-only test pass:
 
@@ -165,7 +184,7 @@ A recommended pre-push sequence is:
 
 ```bash
 ./format.sh
-./check.sh
+./check_all.sh
 ./check_package.sh
 ```
 

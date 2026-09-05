@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+# These private factory classes intentionally construct Range instances.
+# Mypy otherwise requires __new__ to return an instance of each factory class.
+# mypy: disable-error-code=misc
+
 from ._core import Range, RangeGenerator
 
 

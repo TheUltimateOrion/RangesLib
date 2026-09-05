@@ -10,15 +10,11 @@ echo "Checking Ruff lint rules..."
 echo "Checking Ruff formatting..."
 "$PYTHON" -m ruff format --check .
 
-echo "Checking static types..."
-"$PYTHON" -m mypy src/rangeslib tests/typecheck/public_api.py
+PYTHON="$PYTHON" ./typecheck.sh
 
 echo "Running tests with branch coverage..."
 "$PYTHON" -m coverage erase
 PYTHONPATH=src "$PYTHON" -m coverage run -m unittest discover -s tests
 "$PYTHON" -m coverage report
-
-echo "Building documentation with warnings as errors..."
-./generate_docs.sh
 
 echo "All local quality checks passed."

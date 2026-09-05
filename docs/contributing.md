@@ -56,18 +56,39 @@ performs, in order:
 1. `ruff check .`
 2. `ruff format --check .`
 3. mypy over the package and public API type assertions
-4. the unit suite under branch coverage, including the configured coverage
+4. Pyright over the package and public API type assertions
+5. the unit suite under branch coverage, including the configured coverage
    threshold
-5. a Sphinx build with warnings promoted to errors
 
-The script does not rewrite tracked source files. Coverage and documentation
-build artifacts are ignored by Git.
+The script does not rewrite tracked source files. Coverage artifacts are
+ignored by Git.
+
+### Validate the complete release tree
+
+Run:
+
+```bash
+./check_all.sh
+```
+
+This runs `check.sh`, then builds Sphinx documentation with warnings promoted
+to errors. GitHub Actions uses this complete gate before deployment.
 
 For a faster test-only pass, use:
 
 ```bash
 ./run_tests.sh
 ```
+
+For the two static type checkers only, use:
+
+```bash
+./typecheck.sh
+```
+
+Ruff validates syntax, style, and code quality. Mypy and Pyright intentionally
+both validate static types: Pyright matches the analysis engine used by
+Pylance, while mypy provides an independent implementation.
 
 ### Validate distributions
 
@@ -85,7 +106,7 @@ A good pre-push sequence is therefore:
 
 ```bash
 ./format.sh
-./check.sh
+./check_all.sh
 ./check_package.sh
 ```
 
@@ -99,7 +120,9 @@ drifting apart.
 | --- | --- | --- |
 | `./format.sh` | Local only | Apply Ruff fixes and formatting |
 | `./run_tests.sh` | Python 3.12/3.13/3.14 matrix | Runtime compatibility |
-| `./check.sh` | `Quality gates` job | Lint, formatting, typing, coverage, docs |
+| `./check.sh` | Called by `./check_all.sh` | Ruff, mypy, Pyright, coverage |
+| `./check_all.sh` | `Quality gates` job | Source quality plus strict docs |
+| `./typecheck.sh` | Called by `./check.sh` | mypy and Pyright only |
 | `./check_package.sh` | `Build and install package` job | Distribution and installed-wheel validation |
 | `./generate_docs.sh` | Documentation deployment | Build the deployable Sphinx site |
 

@@ -17,9 +17,7 @@ def join_strings(values: Iterable[str]) -> str:
 
 def main() -> None:
     cool_str: str = (
-        "abcdefghijklmnopqrstuvwxyz"
-        | views.take(5)
-        | views.to(join_strings)
+        "abcdefghijklmnopqrstuvwxyz" | views.take(5) | views.to(join_strings)
     )
     numbers = (
         ranges.iota(1, 11)
