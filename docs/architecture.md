@@ -4,7 +4,7 @@
 
 ```text
 src/rangeslib/
-├── __init__.py       Public exports and the grouped `Ranges` namespace
+├── __init__.py       Small public package surface
 ├── ranges.py          Lowercase generator facade
 ├── views.py           Lowercase adaptor facade
 ├── _core.py          Range, RangeAdaptor, and RangeGenerator
@@ -32,10 +32,10 @@ Generators are nominal source types: `Iota`, `Repeat`, and the other factories i
 
 Adaptors are transformations. Type-preserving adaptors use one element type, such as `Iterable[T] -> Range[T]`. `Transform` and `To` use separate input and output types because they change either the element type or the entire collection type.
 
-The preferred public facade is lowercase and factory-based. `ranges.iota()`
-and `views.filter()` hide implementation classes and keep generic parameters
-out of normal application code. The uppercase classes remain exported as a
-compatibility and advanced-typing layer.
+The public facade is lowercase and factory-based. `ranges.iota()` and
+`views.filter()` hide implementation classes and keep generic parameters out
+of normal application code. Implementation classes remain available only from
+private modules for internal testing and maintenance.
 
 ## Eager execution
 

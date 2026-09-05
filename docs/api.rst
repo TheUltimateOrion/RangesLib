@@ -4,23 +4,24 @@ API reference
 Public classes and adaptors are documented from their source docstrings.
 
 Core types
-----------
+Core container
+--------------
 
 .. automodule:: rangeslib._core
-   :members: Range, RangeAdaptor, RangeGenerator
+   :members: Range
    :undoc-members:
    :show-inheritance:
 
 Generators
-----------
+Generator facade
+----------------
 
-.. automodule:: rangeslib._generators
+.. automodule:: rangeslib.ranges
    :members:
-   :show-inheritance:
 
 Adaptors
---------
+View facade
+-----------
 
-.. automodule:: rangeslib._adaptors
+.. automodule:: rangeslib.views
    :members:
-   :show-inheritance:

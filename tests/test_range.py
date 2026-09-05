@@ -1,7 +1,9 @@
 import unittest
 from collections.abc import Iterable
 
-from rangeslib import (
+import rangeslib
+from rangeslib import Range, ranges, views
+from rangeslib._adaptors import (
     Adjacent,
     AdjacentTransform,
     CartesianProduct,
@@ -13,22 +15,13 @@ from rangeslib import (
     DropWhile,
     Elements,
     Enumerate,
-    Empty,
     Filter,
-    Iota,
-    Indices,
     Join,
     JoinWith,
     Keys,
-    Range,
-    RangeAdaptor,
-    RangeGenerator,
-    Ranges,
-    Repeat,
     Reverse,
     Pairwise,
     PairwiseTransform,
-    Single,
     Slide,
     Split,
     Stride,
@@ -39,9 +32,9 @@ from rangeslib import (
     Values,
     Zip,
     ZipTransform,
-    ranges,
-    views,
 )
+from rangeslib._core import RangeAdaptor, RangeGenerator
+from rangeslib._generators import Empty, Indices, Iota, Repeat, Single
 
 
 def is_positive(value: int) -> bool:
@@ -314,51 +307,10 @@ class PublicNamespaceTests(unittest.TestCase):
         self.assertEqual(result, [20, 40])
         self.assertEqual(list("abc" | views.take(2)), ["a", "b"])
 
-    def test_ranges_exposes_public_api(self) -> None:
-        expected_names = {
-            "Range",
-            "RangeAdaptor",
-            "RangeGenerator",
-            "To",
-            "Reverse",
-            "Filter",
-            "Take",
-            "TakeWhile",
-            "Drop",
-            "DropWhile",
-            "Counted",
-            "Elements",
-            "Enumerate",
-            "Join",
-            "JoinWith",
-            "Keys",
-            "Single",
-            "Split",
-            "Empty",
-            "Iota",
-            "Indices",
-            "Repeat",
-            "Transform",
-            "Values",
-            "Concat",
-            "Zip",
-            "ZipTransform",
-            "Adjacent",
-            "Pairwise",
-            "AdjacentTransform",
-            "PairwiseTransform",
-            "Chunk",
-            "Slide",
-            "ChunkBy",
-            "Stride",
-            "CartesianProduct",
-            "SupportsGetItem",
-        }
-
-        self.assertEqual(set(vars(Ranges)), expected_names)
-        self.assertIs(Ranges.Range, Range)
-        self.assertIs(Ranges.To, To)
-        self.assertIsInstance(Ranges.Reverse, Reverse)
+    def test_package_exposes_only_the_clean_facade(self) -> None:
+        self.assertEqual(set(vars(rangeslib)) & {"Ranges", "Filter", "Iota", "Take"}, set())
+        self.assertIs(ranges.iota(1, 3).__class__, Range)
+        self.assertEqual(list(views.take(2)([1, 2, 3])), [1, 2])
 
 
 if __name__ == "__main__":
