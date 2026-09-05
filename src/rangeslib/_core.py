@@ -6,6 +6,9 @@ from typing import Iterable
 
 
 class RangeAdaptor[InputT, OutputT](ABC):
+    def __ror__(self, iterable: Iterable[InputT]) -> OutputT:
+        return self(iterable)
+
     @abstractmethod
     def __call__(self, iterable: Iterable[InputT]) -> OutputT:
         raise NotImplementedError

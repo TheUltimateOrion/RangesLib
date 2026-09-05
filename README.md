@@ -21,7 +21,7 @@ assert values == [20, 40, 60]
 - `Range[T]`, a list-like typed range container
 - Range generators: `Empty`, `Single`, `Iota`, `Indices`, and `Repeat`
 - Range adaptors: `Filter`, `Transform`, `Take`, `Counted`, `TakeWhile`, `Drop`, `DropWhile`, `Reverse`, `Elements`, `Keys`, `Values`, `Enumerate`, `Zip`, `ZipTransform`, `Adjacent`, `Pairwise`, `AdjacentTransform`, `PairwiseTransform`, `Chunk`, `Slide`, `ChunkBy`, `Stride`, `CartesianProduct`, `Join`, `JoinWith`, `Split`, `Concat`, and `To`
-- Readable `|` pipelines for `Range` values
+- Readable `|` pipelines for `Range` and ordinary Python iterables
 - Direct adaptor calls for any Python `Iterable`
 - Generic input and output types for transformations and conversions
 - A small public API with private implementation modules
@@ -141,6 +141,16 @@ from rangeslib import Filter, Iota, Reverse, Take
 
 result = Iota(1, 7) | Reverse() | Filter(lambda value: value % 2 == 0) | Take(2)
 assert list(result) == [6, 4]
+```
+
+Because adaptors implement reflected pipe dispatch, built-in iterables such as
+strings, lists, and `range` objects can also start a pipeline:
+
+```python
+from rangeslib import Filter, Take
+
+result = "abcd" | Filter(lambda value: value != "b") | Take(2)
+assert list(result) == ["a", "c"]
 ```
 
 `To` finishes a pipeline by converting its input with any compatible callable:

@@ -151,6 +151,14 @@ class RangeAdaptorTests(unittest.TestCase):
         self.assertEqual(list(result), [3, 2, 1])
         self.assertIsInstance(result, Range)
 
+    def test_normal_iterables_support_pipe_syntax(self) -> None:
+        result = "abcd" | Filter[str](lambda value: value != "b") | Take[str](2)
+
+        self.assertEqual(list(result), ["a", "c"])
+
+        range_result = range(4) | Transform[int, int](times_ten)
+        self.assertEqual(list(range_result), [0, 10, 20, 30])
+
     def test_filter_accepts_a_normal_iterable(self) -> None:
         result = Filter(is_even)([1, 2, 3, 4])
 
