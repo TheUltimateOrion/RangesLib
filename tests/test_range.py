@@ -111,7 +111,7 @@ class RangeTests(unittest.TestCase):
 
         for generator in generators:
             with self.subTest(generator=generator):
-                self.assertIsSubclass(generator, RangeGenerator)
+                self.assertIn(RangeGenerator, generator.__mro__)
 
 
 class RangeAdaptorTests(unittest.TestCase):
