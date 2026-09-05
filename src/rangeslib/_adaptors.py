@@ -73,3 +73,48 @@ class DropWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
             if not dropping:
                 result.append(value)
         return Range(*result)
+
+class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
+    def __call__(self, iterable: Iterable[Iterable[InputT]]) -> Range[InputT]:
+        result: list[InputT] = []
+        for sub_iterable in iterable:
+            result.extend(sub_iterable)
+        return Range(*result)
+
+class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
+    def __init__(self, separator: Iterable[InputT]) -> None:
+        self.separator = tuple(separator)
+
+    def __call__(self, iterable: Iterable[Iterable[InputT]]) -> Range[InputT]:
+        result: list[InputT] = []
+        first = True
+        for sub_iterable in iterable:
+            if not first:
+                result.extend(self.separator)
+            result.extend(sub_iterable)
+            first = False
+        return Range(*result)
+
+class Split[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
+    def __init__(self, separator: Iterable[InputT]) -> None:
+        self.separator = tuple(separator)
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
+        values = list(iterable)
+        separator_length = len(self.separator)
+        if separator_length == 0:
+            raise ValueError("Split separator cannot be empty")
+
+        result: list[Range[InputT]] = []
+        current_chunk: list[InputT] = []
+        index = 0
+        while index < len(values):
+            if values[index:index + separator_length] == list(self.separator):
+                result.append(Range(*current_chunk))
+                current_chunk = []
+                index += separator_length
+            else:
+                current_chunk.append(values[index])
+                index += 1
+        result.append(Range(*current_chunk))
+        return Range(*result)

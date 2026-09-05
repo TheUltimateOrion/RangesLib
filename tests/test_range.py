@@ -2,10 +2,13 @@ import unittest
 
 from rangeslib import (
     Drop,
+    DropWhile,
     Empty,
     Filter,
     Iota,
     Indices,
+    Join,
+    JoinWith,
     Range,
     RangeAdaptor,
     RangeGenerator,
@@ -13,7 +16,9 @@ from rangeslib import (
     Repeat,
     Reverse,
     Single,
+    Split,
     Take,
+    TakeWhile,
     To,
     Transform,
 )
@@ -57,7 +62,7 @@ class RangeTests(unittest.TestCase):
 
 class RangeAdaptorTests(unittest.TestCase):
     def test_all_adaptors_share_the_base_type(self) -> None:
-        adaptors = [To(list), Reverse(), Filter(lambda value: value > 0), Transform(str), Take(1), Drop(1)]
+        adaptors = [To(list), Reverse(), Filter(lambda value: value > 0), Transform(str), Take(1), TakeWhile(lambda value: value > 0), Drop(1), DropWhile(lambda value: value > 0), Join(), JoinWith([0]), Split([0])]
 
         for adaptor in adaptors:
             with self.subTest(adaptor=adaptor):
@@ -97,6 +102,34 @@ class RangeAdaptorTests(unittest.TestCase):
         self.assertEqual(To(tuple)(values), (1, 2, 2, 3))
         self.assertEqual(To(set)(values), {1, 2, 3})
 
+    def test_take_while_and_drop_while_accept_normal_iterables(self) -> None:
+        self.assertEqual(list(TakeWhile(lambda value: value < 3)([1, 2, 3, 2])), [1, 2])
+        self.assertEqual(list(DropWhile(lambda value: value < 3)([1, 2, 3, 2])), [3, 2])
+
+    def test_join_accepts_an_iterable_of_iterables(self) -> None:
+        nested_values = (values for values in [[1, 2], (3,), range(4, 6)])
+
+        self.assertEqual(list(Join()(nested_values)), [1, 2, 3, 4, 5])
+
+    def test_join_with_inserts_a_pattern_between_iterables(self) -> None:
+        nested_values = (values for values in [[1, 2], (3,), range(4, 6)])
+
+        self.assertEqual(list(JoinWith([0, 0])(nested_values)), [1, 2, 0, 0, 3, 0, 0, 4, 5])
+
+    def test_split_accepts_a_pattern_and_preserves_empty_chunks(self) -> None:
+        result = Split([0, 0])([1, 2, 0, 0, 3, 0, 0])
+
+        self.assertEqual([list(chunk) for chunk in result], [[1, 2], [3], []])
+
+    def test_split_rejects_an_empty_pattern(self) -> None:
+        with self.assertRaises(ValueError):
+            Split([])([1, 2, 3])
+
+    def test_join_works_in_a_pipeline(self) -> None:
+        result = Iota(1, 4) | Transform(lambda value: range(value)) | Join()
+
+        self.assertEqual(list(result), [0, 0, 1, 0, 1, 2])
+
     def test_to_supports_a_custom_factory(self) -> None:
         result = To(lambda iterable: ":".join(iterable))(["a", "b", "c"])
 
@@ -130,8 +163,13 @@ class PublicNamespaceTests(unittest.TestCase):
             "Reverse",
             "Filter",
             "Take",
+            "TakeWhile",
             "Drop",
+            "DropWhile",
+            "Join",
+            "JoinWith",
             "Single",
+            "Split",
             "Empty",
             "Iota",
             "Indices",

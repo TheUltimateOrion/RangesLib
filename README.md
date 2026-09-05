@@ -20,7 +20,7 @@ assert values == [20, 40, 60]
 
 - `Range[T]`, a list-like typed range container
 - Range generators: `Empty`, `Single`, `Iota`, `Indices`, and `Repeat`
-- Range adaptors: `Filter`, `Transform`, `Take`, `Drop`, `Reverse`, and `To`
+- Range adaptors: `Filter`, `Transform`, `Take`, `TakeWhile`, `Drop`, `DropWhile`, `Reverse`, `Join`, and `To`
 - Readable `|` pipelines for `Range` values
 - Direct adaptor calls for any Python `Iterable`
 - Generic input and output types for transformations and conversions
@@ -67,6 +67,37 @@ assert list(result) == [3, 4]
 
 result = Transform(str)(range(3))
 assert list(result) == ["0", "1", "2"]
+```
+
+`TakeWhile` and `DropWhile` operate on the beginning of an iterable:
+
+```python
+from rangeslib import DropWhile, TakeWhile
+
+assert list(TakeWhile(lambda value: value < 3)([1, 2, 3, 4])) == [1, 2]
+assert list(DropWhile(lambda value: value < 3)([1, 2, 3, 4])) == [3, 4]
+```
+
+`Join` accepts an iterable of iterables and flattens one level:
+
+```python
+from rangeslib import Join
+
+result = Join()((values for values in [[1, 2], (3, 4)]))
+assert list(result) == [1, 2, 3, 4]
+```
+
+`JoinWith` inserts an iterable separator between inner iterables, while `Split`
+divides an iterable wherever it finds a separator pattern:
+
+```python
+from rangeslib import JoinWith, Split
+
+joined = JoinWith([0, 0])([[1, 2], [3, 4]])
+chunks = Split([0, 0])([1, 2, 0, 0, 3, 4])
+
+assert list(joined) == [1, 2, 0, 0, 3, 4]
+assert [list(chunk) for chunk in chunks] == [[1, 2], [3, 4]]
 ```
 
 Or they can be composed with a `Range` using the pipe operator:
