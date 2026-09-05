@@ -4,12 +4,19 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
-## Unreleased
+## 0.3.3 - 2026-09-05
 
 ### Added
 
 - Automated GitHub releases when `[project].version` changes on `main` after
   source quality, documentation, package, and wheel-install checks pass.
+- GitHub issue and pull request templates, plus local pre-commit hooks for
+  Ruff, mypy, and Pyright.
+
+### Changed
+
+- Moved developer commands into `scripts/` and updated CI, documentation, and
+  source-distribution packaging to use the new paths.
 
 ## 0.3.2 - 2026-09-05
 
