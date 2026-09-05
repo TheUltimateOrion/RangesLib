@@ -59,3 +59,17 @@ class Drop[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
         return Range(*list(iterable)[self.n:])
+
+class DropWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    def __init__(self, predicate: Callable[[InputT], bool]) -> None:
+        self.predicate = predicate
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
+        result: list[InputT] = []
+        dropping = True
+        for value in iterable:
+            if dropping and not self.predicate(value):
+                dropping = False
+            if not dropping:
+                result.append(value)
+        return Range(*result)
