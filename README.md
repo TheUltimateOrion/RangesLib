@@ -197,3 +197,19 @@ Run the complete test suite with:
 ```
 
 The same tests run automatically on every push through the workflow in `.github/workflows/tests.yml`.
+
+## Playground
+
+Run the root-level playground with:
+
+```bash
+./run_playground.sh
+```
+
+The script uses the project virtual environment and configures the `src`
+layout automatically. You can also run the file directly after installing the
+package in editable mode:
+
+```bash
+.venv/bin/python playground.py
+```
