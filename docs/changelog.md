@@ -24,13 +24,14 @@ change independently.
 
 - Ruff, mypy, and Pyright as required, independently configured validation
   categories in the local quality gate and CI.
-- `typecheck.sh` for running mypy and Pyright without the full test, coverage,
+- `scripts/typecheck.sh` for running mypy and Pyright without the full test, coverage,
   package, and documentation checks.
 
 ### Changed
 
 - The CI quality job now explicitly reports its Ruff, mypy, and Pyright gate.
-- `check.sh` forwards its selected `PYTHON` interpreter to `typecheck.sh`.
+- `scripts/check.sh` forwards its selected `PYTHON` interpreter to
+  `scripts/typecheck.sh`.
 
 ## 0.3.1
 
