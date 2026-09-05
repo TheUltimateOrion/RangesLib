@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, Iterable
+from itertools import islice
+from typing import Any, Callable, Iterable
 
 from ._core import Range, RangeAdaptor
 
@@ -73,6 +74,54 @@ class DropWhile[InputT](RangeAdaptor[InputT, Range[InputT]]):
             if not dropping:
                 result.append(value)
         return Range(*result)
+
+
+class Counted[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    def __init__(self, count: int) -> None:
+        if count < 0:
+            raise ValueError("Counted count cannot be negative")
+        self.count = count
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
+        return Range(*islice(iterable, self.count))
+
+
+class Elements[InputT](RangeAdaptor[InputT, Range[Any]]):
+    def __init__(self, index: int) -> None:
+        self.index = index
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[Any]:
+        return Range(*(value[self.index] for value in iterable))  # type: ignore[index]
+
+
+class Keys[InputT](Elements[InputT]):
+    def __init__(self) -> None:
+        super().__init__(0)
+
+
+class Values[InputT](Elements[InputT]):
+    def __init__(self) -> None:
+        super().__init__(1)
+
+
+class Enumerate[InputT](RangeAdaptor[InputT, Range[tuple[int, InputT]]]):
+    def __init__(self, start: int = 0) -> None:
+        self.start = start
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[tuple[int, InputT]]:
+        return Range(*enumerate(iterable, self.start))
+
+
+class Concat[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    def __init__(self, *iterables: Iterable[InputT]) -> None:
+        self.iterables = iterables
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
+        result: list[InputT] = list(iterable)
+        for additional_iterable in self.iterables:
+            result.extend(additional_iterable)
+        return Range(*result)
+
 
 class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
     def __call__(self, iterable: Iterable[Iterable[InputT]]) -> Range[InputT]:

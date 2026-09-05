@@ -1,6 +1,8 @@
 from types import SimpleNamespace
 
-from ._adaptors import Drop, DropWhile, Filter, Join, JoinWith, Reverse, Split, Take, TakeWhile, To, Transform
+from ._adaptors import (Concat, Counted, Drop, DropWhile, Elements, Enumerate,
+                        Filter, Join, JoinWith, Keys, Reverse, Split, Take,
+                        TakeWhile, To, Transform, Values)
 from ._core import Range, RangeAdaptor, RangeGenerator
 from ._generators import Empty, Indices, Iota, Repeat, Single
 
@@ -10,6 +12,12 @@ Ranges: SimpleNamespace = SimpleNamespace(
     RangeAdaptor=RangeAdaptor,
     RangeGenerator=RangeGenerator,
     To=To,
+    Counted=Counted,
+    Elements=Elements,
+    Keys=Keys,
+    Values=Values,
+    Enumerate=Enumerate,
+    Concat=Concat,
     Reverse=Reverse(),
     Filter=Filter,
     Take=Take,
@@ -30,12 +38,16 @@ Ranges: SimpleNamespace = SimpleNamespace(
 __all__ = [
     "Drop",
     "DropWhile",
+    "Counted",
+    "Elements",
+    "Enumerate",
     "Empty",
     "Filter",
     "Indices",
     "Iota",
     "Join",
     "JoinWith",
+    "Keys",
     "Range",
     "RangeAdaptor",
     "RangeGenerator",
@@ -48,4 +60,6 @@ __all__ = [
     "TakeWhile",
     "To",
     "Transform",
+    "Values",
+    "Concat",
 ]

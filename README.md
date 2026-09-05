@@ -20,7 +20,7 @@ assert values == [20, 40, 60]
 
 - `Range[T]`, a list-like typed range container
 - Range generators: `Empty`, `Single`, `Iota`, `Indices`, and `Repeat`
-- Range adaptors: `Filter`, `Transform`, `Take`, `TakeWhile`, `Drop`, `DropWhile`, `Reverse`, `Join`, and `To`
+- Range adaptors: `Filter`, `Transform`, `Take`, `Counted`, `TakeWhile`, `Drop`, `DropWhile`, `Reverse`, `Elements`, `Keys`, `Values`, `Enumerate`, `Join`, `JoinWith`, `Split`, `Concat`, and `To`
 - Readable `|` pipelines for `Range` values
 - Direct adaptor calls for any Python `Iterable`
 - Generic input and output types for transformations and conversions
@@ -98,6 +98,28 @@ chunks = Split([0, 0])([1, 2, 0, 0, 3, 4])
 
 assert list(joined) == [1, 2, 0, 0, 3, 4]
 assert [list(chunk) for chunk in chunks] == [[1, 2], [3, 4]]
+```
+
+The tuple-like projection adaptors mirror C++ `elements`, `keys`, and `values`:
+
+```python
+from rangeslib import Elements, Keys, Values
+
+pairs = [("a", 1), ("b", 2)]
+assert list(Elements(0)(pairs)) == ["a", "b"]
+assert list(Keys()(pairs)) == ["a", "b"]
+assert list(Values()(pairs)) == [1, 2]
+```
+
+`Enumerate` adds indexes, `Counted` takes a bounded prefix from an iterable,
+and `Concat` appends additional iterables to the piped input:
+
+```python
+from rangeslib import Concat, Counted, Enumerate
+
+assert list(Counted(2)(value for value in [10, 20, 30])) == [10, 20]
+assert list(Enumerate(1)(["a", "b"])) == [(1, "a"), (2, "b")]
+assert list(Concat([3, 4])([1, 2])) == [1, 2, 3, 4]
 ```
 
 Or they can be composed with a `Range` using the pipe operator:
