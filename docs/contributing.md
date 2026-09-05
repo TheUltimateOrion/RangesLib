@@ -42,6 +42,21 @@ exclusions.
 Review the resulting diff before committing. CI never invokes `scripts/format.sh` and
 never automatically commits formatting changes.
 
+### Install pre-commit hooks
+
+After installing the development tools, install the local hooks:
+
+```bash
+python -m pre_commit install
+```
+
+The hooks run Ruff, mypy, and Pyright before every commit. To run all hooks
+manually, use:
+
+```bash
+python -m pre_commit run --all-files
+```
+
 ### Validate the source tree
 
 Run:
@@ -130,6 +145,16 @@ A CI formatting failure should be fixed locally with `./scripts/format.sh`, revi
 committed, and pushed. The CI workflow must remain read-only with respect to
 tracked source code.
 
+## Releases
+
+The `Release` workflow runs for pushes to `main` that modify `pyproject.toml`.
+It compares `[project].version` with the previous commit. When the version has
+changed, it runs `scripts/check_all.sh`, runs `scripts/check_package.sh`, then
+creates the matching `v<version>` tag and GitHub release with generated notes.
+
+Do not manually create a tag for a future version. Commit the version bump and
+changelog entry together, then push `main`; the workflow handles the release.
+
 ## Documentation deployment
 
 GitHub Pages deployment is a separate CD workflow, but it is not independent of
@@ -139,10 +164,6 @@ workflow on `main` and runs only when that workflow concluded successfully.
 The deployment workflow checks out `workflow_run.head_sha`, so it builds the
 exact commit that passed CI rather than whatever commit happens to be at the tip
 of `main` when the deployment runner starts.
-
-For repositories using protected branches, configure `main` to require the CI
-jobs before merge. Repository settings are outside version-controlled workflow
-files, so that protection must be enabled in GitHub itself.
 
 ## Test organization
 

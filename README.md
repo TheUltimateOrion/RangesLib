@@ -1,5 +1,10 @@
 # rangeslib
 
+[![Tests and quality](https://github.com/TheUltimateOrion/RangesLib/actions/workflows/tests.yml/badge.svg)](https://github.com/TheUltimateOrion/RangesLib/actions/workflows/tests.yml)
+[![Documentation](https://github.com/TheUltimateOrion/RangesLib/actions/workflows/docs.yml/badge.svg)](https://theultimateorion.github.io/RangesLib/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 `rangeslib` is a typed Python library for composing eager ranges and iterable
 transformations with readable pipeline syntax.
 
@@ -129,6 +134,21 @@ lint fixes and then formats every Python file Ruff discovers in the repository:
 
 CI never runs this command because CI should not silently modify source code.
 
+### Install pre-commit hooks
+
+Install the repository hooks after installing the development extra:
+
+```bash
+python -m pre_commit install
+```
+
+The hooks run Ruff, mypy, and Pyright before each commit. Run every configured
+hook across the repository manually with:
+
+```bash
+python -m pre_commit run --all-files
+```
+
 ### Run the local quality gate
 
 `scripts/check.sh` is the read-only source-quality gate used by the complete
@@ -205,6 +225,16 @@ Documentation deployment is gated by CI. A push to `main` first runs the
 **Tests and quality** workflow. GitHub Pages is built and deployed only after
 that workflow succeeds, and the deployment workflow checks out the exact commit
 SHA that CI validated.
+
+## Releases
+
+Changing `[project].version` in `pyproject.toml` on `main` automatically runs
+the complete quality and package checks, then creates the matching Git tag and
+GitHub release with generated notes. For example, changing the version to
+`0.3.3` creates `v0.3.3` after validation succeeds.
+
+Do not create the matching tag manually. The workflow skips a version when its
+GitHub release already exists.
 
 ## Compatibility and releases
 

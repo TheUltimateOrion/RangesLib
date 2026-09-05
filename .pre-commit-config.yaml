@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.6
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: .venv/bin/python -m mypy src/rangeslib tests/typecheck/public_api.py
+        language: system
+        pass_filenames: false
+      - id: pyright
+        name: pyright
+        entry: .venv/bin/python -m pyright
+        language: system
+        pass_filenames: false
