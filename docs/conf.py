@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 project = "rangeslib"
 author = "RangesLib contributors"
-release = "0.2.0"
+release = "0.3.0"
 
 extensions = [
     "myst_parser",
