@@ -10,6 +10,7 @@ change independently.
 
 - `views.all` for materializing existing Python iterables into reusable `Range`
   values, similar in purpose to C++ `views::all`.
+- Coverage now reports 100% executable line and branch coverage.
 
 ## 0.3.3 - 2026-09-05
 

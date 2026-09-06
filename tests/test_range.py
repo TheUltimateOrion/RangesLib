@@ -184,9 +184,11 @@ class RangeAdaptorTests(unittest.TestCase):
 
     def test_take_while_and_drop_while_accept_normal_iterables(self) -> None:
         take_result: Range[int] = TakeWhile(is_less_than_three)([1, 2, 3, 2])
+        take_all_result: Range[int] = TakeWhile(is_positive)([1, 2, 3])
         drop_result: Range[int] = DropWhile(is_less_than_three)([1, 2, 3, 2])
 
         self.assertEqual(list(take_result), [1, 2])
+        self.assertEqual(list(take_all_result), [1, 2, 3])
         self.assertEqual(list(drop_result), [3, 2])
 
     def test_counted_takes_from_a_one_shot_iterable(self) -> None:
