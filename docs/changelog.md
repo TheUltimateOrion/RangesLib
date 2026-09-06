@@ -4,6 +4,13 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.6.1 - 2026-09-06
+
+### Fixed
+
+- Corrected the historical `0.2.0` changelog entry so it no longer repeats
+  changes from `0.5.0`.
+
 ## 0.6.0 - 2026-09-05
 
 ### Added
@@ -133,20 +140,5 @@ change independently.
 - Documented eager execution and ordinary-iterable pipeline support.
 
 ## 0.2.0
-
-
-  - Reusable adaptor composition, allowing pipelines such as
-    `views.filter(predicate) | views.take(3)` to be reused with multiple inputs.
-  - `views.take_while` and `views.drop_while` aliases for C++-style naming.
-  - Scalar delimiters for `views.split` and `views.join_with`, while retaining
-    iterable separator-pattern support.
-  - `scripts/benchmark.py` for local performance measurements of large eager
-    pipelines.
-
-  ### Changed
-
-  - `views.split` now validates an empty separator before consuming its input.
-  - Public typing now supports mixed-type two-range `zip` and `cartesian_product`,
-    typed `keys` and `values`, and exact pairwise tuple output.
 
 - Established the initial range container, source generators, and adaptor set.
