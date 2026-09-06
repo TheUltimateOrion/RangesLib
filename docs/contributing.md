@@ -155,6 +155,9 @@ creates the matching `v<version>` tag and GitHub release with generated notes.
 Do not manually create a tag for a future version. Commit the version bump and
 changelog entry together, then push `main`; the workflow handles the release.
 
+Published GitHub Releases trigger the PyPI publishing workflow. See
+[Publishing](publishing.md) for the required PyPI Trusted Publishing setup.
+
 ## Documentation deployment
 
 GitHub Pages deployment is a separate CD workflow, but it is not independent of

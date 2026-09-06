@@ -15,6 +15,7 @@ Guides
    cpp-comparison
    roadmap
    contributing
+   publishing
    migration
    changelog
 

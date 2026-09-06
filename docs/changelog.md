@@ -4,6 +4,15 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.6.0 - 2026-09-05
+
+### Added
+
+- Automated PyPI publishing through GitHub Releases and PyPI Trusted
+  Publishing.
+- Publishing documentation covering the release flow, trusted publisher fields,
+  and GitHub environment behavior.
+
 ## 0.5.1 - 2026-09-05
 
 ### Added

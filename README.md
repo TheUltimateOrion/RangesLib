@@ -157,7 +157,10 @@ after CI succeeds on `main`.
 
 Changing `[project].version` in `pyproject.toml` on `main` automatically runs
 the complete quality and package checks, then creates the matching Git tag and
-GitHub Release.
+GitHub Release. Published GitHub Releases trigger PyPI publishing through
+Trusted Publishing after the PyPI project is configured.
 
 For future work, prefer opening or collecting issues before adding more adaptors
 immediately. See [docs/roadmap.md](docs/roadmap.md).
+
+See [docs/publishing.md](docs/publishing.md) for the PyPI setup checklist.

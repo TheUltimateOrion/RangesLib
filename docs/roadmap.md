@@ -19,19 +19,16 @@ note instead of immediately adding more adaptors.
   such as `views.filter(predicate) | views.take(3)`.
 - Performance profiling: use `scripts/benchmark.py` to compare split, slide,
   join, and repeated materialization changes.
-- PyPI publishing: add trusted publishing once the public API has settled.
 - C++ compatibility notes: document every intentionally different behavior as it
   is discovered.
 
 ## Not immediate priorities
 
 - Adding every remaining C++ range customization point.
-- Publishing to PyPI before the docs and release automation have had a few
-  successful cycles.
 - Expanding the package root namespace beyond `Range`, `ranges`, and `views`.
 
 ## Release direction
 
-`0.5.x` should focus on documentation, correctness, and polish. A future `0.6.0`
-would be a reasonable place for publishing automation or a larger architecture
-experiment.
+`0.6.x` should focus on publishing automation, release confidence, and polish. A
+future minor release would be a reasonable place for a larger architecture
+experiment such as lazy views.
