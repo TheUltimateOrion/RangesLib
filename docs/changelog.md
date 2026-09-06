@@ -4,6 +4,14 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.8.1 - 2026-09-06
+
+### Fixed
+
+- Added a less precise fallback type for `views.zip` and
+  `views.cartesian_product` calls with more than two companion iterables,
+  matching their existing runtime support.
+
 ## 0.8.0 - 2026-09-06
 
 ### Changed

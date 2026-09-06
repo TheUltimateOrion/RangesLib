@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import assert_type
+from typing import Any, assert_type
 
 from rangeslib import Range, ranges, views
 
@@ -38,11 +38,19 @@ assert_type(
     numbers | views.zip(["a", "b"], [True, False]),
     Range[tuple[int, str, bool]],
 )
+assert_type(
+    numbers | views.zip(["a"], [True], [1.0]),
+    Range[tuple[Any, ...]],
+)
 assert_type(numbers | views.cartesian_product(), Range[tuple[int]])
 assert_type(numbers | views.cartesian_product(["a", "b"]), Range[tuple[int, str]])
 assert_type(
     numbers | views.cartesian_product(["a", "b"], [True, False]),
     Range[tuple[int, str, bool]],
+)
+assert_type(
+    numbers | views.cartesian_product(["a"], [True], [1.0]),
+    Range[tuple[Any, ...]],
 )
 assert_type([("a", 1), ("b", 2)] | views.keys(), Range[str])
 assert_type([("a", 1), ("b", 2)] | views.values(), Range[int])

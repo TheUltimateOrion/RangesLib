@@ -122,6 +122,16 @@ class _ZipView2[OtherT, ThirdT](Protocol):
     ) -> Range[tuple[InputT, OtherT, ThirdT]]: ...
 
 
+class _VariadicZipView(Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[Any, ...]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[Any, ...]]: ...
+
+
 class _CartesianProductView0(Protocol):
     def __call__[InputT](
         self, iterable: Iterable[InputT], /
@@ -150,6 +160,16 @@ class _CartesianProductView2[OtherT, ThirdT](Protocol):
     def __ror__[InputT](
         self, iterable: Iterable[InputT], /
     ) -> Range[tuple[InputT, OtherT, ThirdT]]: ...
+
+
+class _VariadicCartesianProductView(Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[Any, ...]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[Any, ...]]: ...
 
 
 def all() -> _TypePreservingView:
@@ -293,13 +313,23 @@ def zip[OtherT, ThirdT](
 ) -> _ZipView2[OtherT, ThirdT]: ...
 
 
-def zip(*iterables: Iterable[Any]) -> _ZipView0 | _ZipView1[Any] | _ZipView2[Any, Any]:
+@overload
+def zip(*iterables: Iterable[Any]) -> _VariadicZipView: ...
+
+
+def zip(
+    *iterables: Iterable[Any],
+) -> _ZipView0 | _ZipView1[Any] | _ZipView2[Any, Any] | _VariadicZipView:
     """Zip the pipeline input with configured iterables to the shortest length.
 
     Runtime calls may provide more than two configured iterables; precise public
-    typing is provided for zero, one, and two configured iterables.
+    typing is provided for zero, one, and two configured iterables. Larger calls
+    use a tuple-of-``Any`` fallback type.
     """
-    return cast(_ZipView0 | _ZipView1[Any] | _ZipView2[Any, Any], Zip[Any](*iterables))
+    return cast(
+        _ZipView0 | _ZipView1[Any] | _ZipView2[Any, Any] | _VariadicZipView,
+        Zip[Any](*iterables),
+    )
 
 
 def zip_transform[OutputT](
@@ -377,22 +407,29 @@ def cartesian_product[OtherT, ThirdT](
 ) -> _CartesianProductView2[OtherT, ThirdT]: ...
 
 
+@overload
+def cartesian_product(*iterables: Iterable[Any]) -> _VariadicCartesianProductView: ...
+
+
 def cartesian_product(
     *iterables: Iterable[Any],
 ) -> (
     _CartesianProductView0
     | _CartesianProductView1[Any]
     | _CartesianProductView2[Any, Any]
+    | _VariadicCartesianProductView
 ):
     """Return the Cartesian product of the input and configured iterables.
 
     Runtime calls may provide more than two configured iterables; precise public
-    typing is provided for zero, one, and two configured iterables.
+    typing is provided for zero, one, and two configured iterables. Larger calls
+    use a tuple-of-``Any`` fallback type.
     """
     return cast(
         _CartesianProductView0
         | _CartesianProductView1[Any]
-        | _CartesianProductView2[Any, Any],
+        | _CartesianProductView2[Any, Any]
+        | _VariadicCartesianProductView,
         CartesianProduct[Any](*iterables),
     )
 
