@@ -1,5 +1,19 @@
 # Migration guide
 
+## From 0.6.x to 0.7.0
+
+`Range.__str__()` now uses normal list formatting. String elements are quoted,
+matching the representation users get from a regular Python list:
+
+```python
+from rangeslib import Range
+
+assert str(Range("a", "b")) == "['a', 'b']"
+```
+
+Code that relies on the previous unquoted display should use an explicit string
+conversion or formatting expression when it needs output without quotes.
+
 ## From 0.3.0 to 0.3.1
 
 0.3.1 is primarily a correctness, typing, documentation, and quality-gate

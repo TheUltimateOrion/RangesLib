@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, Protocol, cast
+from typing import Any, Callable, Iterable, Protocol, cast, overload
 
 from ._adaptors import (
     Adjacent,
@@ -122,16 +122,31 @@ def all() -> _TypePreservingView:
     return cast(_TypePreservingView, All[object]())
 
 
+@overload
+def to(target_type: type[str], /) -> To[str, str]: ...
+
+
+@overload
 def to[InputT, OutputT](
     target_type: Callable[[Iterable[InputT]], OutputT],
+    /,
+) -> To[InputT, OutputT]: ...
+
+
+def to[InputT, OutputT](
+    target_type: Callable[[Iterable[InputT]], OutputT] | type[str], /
 ) -> To[InputT, OutputT]:
     """Convert the pipeline input with ``target_type``.
 
     ``to`` is the only public adaptor that does not necessarily return
     :class:`~rangeslib.Range`; it returns exactly what the supplied callable
-    produces.
+    produces. Passing the built-in ``str`` joins string elements without a
+    separator.
     """
-    return To(target_type)
+    return cast(
+        To[InputT, OutputT],
+        To(cast(Callable[[Iterable[InputT]], OutputT], target_type)),
+    )
 
 
 def reverse() -> _TypePreservingView:

@@ -47,7 +47,7 @@ Ordinary Python iterables can start pipelines too:
 ```python
 from rangeslib import views
 
-text = "abcdef" | views.take(3) | views.to("".join)
+text = "abcdef" | views.take(3) | views.to(str)
 assert text == "abc"
 
 chars = "abc" | views.all()

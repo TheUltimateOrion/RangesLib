@@ -59,7 +59,7 @@ class Range[T](UserList[T]):
         return f"Range({', '.join(repr(x) for x in self.data)})"
 
     def __str__(self) -> str:
-        return f"[{', '.join(str(x) for x in self.data)}]"
+        return str(self.data)
 
     def __or__[OutputT](self, adaptor: Callable[[Iterable[T]], OutputT], /) -> OutputT:
         return adaptor(self)

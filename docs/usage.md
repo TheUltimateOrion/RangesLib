@@ -84,7 +84,7 @@ Ordinary iterables can start pipelines because adaptors implement reflected `|`
 dispatch:
 
 ```python
-text = "abcdef" | views.take(3) | views.to("".join)
+text = "abcdef" | views.take(3) | views.to(str)
 assert text == "abc"
 ```
 
@@ -115,6 +115,10 @@ assert list("abc" | views.all()) == ["a", "b", "c"]
 `views.take(count)` and `views.counted(count)` stop early for non-negative
 counts, so they can bound one-shot or infinite iterators. Negative `take`
 intentionally follows Python slice semantics and materializes the input first.
+
+Use `views.to(str)` to concatenate string elements without a separator. Other
+targets are called with the pipeline iterable, so custom conversion functions
+and collection types continue to work as before.
 
 ## Adaptor Catalog
 

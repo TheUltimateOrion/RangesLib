@@ -79,7 +79,7 @@ class RangeTests(unittest.TestCase):
 
         self.assertEqual(list(values), [1, "two", 3])
         self.assertEqual(repr(values), "Range(1, 'two', 3)")
-        self.assertEqual(str(values), "[1, two, 3]")
+        self.assertEqual(str(values), "[1, 'two', 3]")
         self.assertEqual(len(values), 3)
 
     def test_empty_and_is_empty(self) -> None:

@@ -206,6 +206,7 @@ class PublicViewTests(unittest.TestCase):
             [[], [1]],
         )
         self.assertEqual(views.to(tuple)([1, 2, 3]), (1, 2, 3))
+        self.assertEqual(views.to(str)(["a", "b", "c"]), "abc")
 
     def test_public_validation_contract(self) -> None:
         invalid_factories: list[Callable[[], object]] = [

@@ -4,7 +4,19 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.7.0 - 2026-09-06
+
+### Changed
+
+- `Range.__str__()` now matches normal list formatting, including quoted string
+  elements.
+
 ## 0.6.1 - 2026-09-06
+
+### Added
+
+- `views.to(str)` for concatenating string elements without requiring an
+  explicit `"".join` factory.
 
 ### Fixed
 

@@ -35,12 +35,17 @@ class All[InputT](RangeAdaptor[InputT, Range[InputT]]):
 
 
 class To[InputT, OutputT](RangeAdaptor[InputT, OutputT]):
-    """Convert an iterable with a supplied collection or factory callable."""
+    """Convert an iterable with a supplied collection or factory callable.
+
+    The built-in ``str`` target joins string elements without a separator.
+    """
 
     def __init__(self, target_type: Callable[[Iterable[InputT]], OutputT]) -> None:
         self.target_type = target_type
 
     def __call__(self, iterable: Iterable[InputT]) -> OutputT:
+        if self.target_type is str:
+            return cast(OutputT, "".join(cast(Iterable[str], iterable)))
         return self.target_type(iterable)
 
 

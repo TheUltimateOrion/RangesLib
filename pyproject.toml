@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rangeslib"
-version = "0.6.1"
+version = "0.7.0"
 description = "Composable, typed Python ranges and iterable adaptors"
 readme = "README.md"
 license = "MIT"
@@ -13,7 +13,7 @@ authors = [{ name = "Aaryan Banerjee" }]
 requires-python = ">=3.12"
 keywords = ["ranges", "iterables", "pipelines", "functional", "typing"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.12",
