@@ -5,6 +5,21 @@ from typing import Callable, Iterable, Protocol, cast
 
 from ._core import Range, RangeAdaptor
 
+type Pattern[InputT] = InputT | Iterable[InputT]
+
+
+def _pattern_from[InputT](value: Pattern[InputT]) -> tuple[InputT, ...]:
+    try:
+        return tuple(cast(Iterable[InputT], value))
+    except TypeError:
+        return (cast(InputT, value),)
+
+
+def _starts_with[InputT](
+    values: list[InputT], index: int, pattern: tuple[InputT, ...]
+) -> bool:
+    return tuple(values[index : index + len(pattern)]) == pattern
+
 
 class SupportsGetItem(Protocol):
     """Structural requirement for tuple-like indexed elements."""
@@ -210,11 +225,14 @@ class Adjacent[InputT](RangeAdaptor[InputT, Range[tuple[InputT, ...]]]):
         )
 
 
-class Pairwise[InputT](Adjacent[InputT]):
+class Pairwise[InputT](RangeAdaptor[InputT, Range[tuple[InputT, InputT]]]):
     """Return overlapping two-element windows."""
 
-    def __init__(self) -> None:
-        super().__init__(2)
+    def __call__(self, iterable: Iterable[InputT]) -> Range[tuple[InputT, InputT]]:
+        values = list(iterable)
+        return Range(
+            *((values[index], values[index + 1]) for index in range(len(values) - 1))
+        )
 
 
 class AdjacentTransform[InputT, OutputT](RangeAdaptor[InputT, Range[OutputT]]):
@@ -337,8 +355,8 @@ class Join[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
 class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
     """Flatten nested iterables with a separator pattern between them."""
 
-    def __init__(self, separator: Iterable[InputT]) -> None:
-        self.separator = tuple(separator)
+    def __init__(self, separator: Pattern[InputT]) -> None:
+        self.separator = _pattern_from(separator)
 
     def __call__(self, iterable: Iterable[Iterable[InputT]]) -> Range[InputT]:
         result: list[InputT] = []
@@ -354,20 +372,20 @@ class JoinWith[InputT](RangeAdaptor[Iterable[InputT], Range[InputT]]):
 class Split[InputT](RangeAdaptor[InputT, Range[Range[InputT]]]):
     """Split input into ranges wherever a separator pattern occurs."""
 
-    def __init__(self, separator: Iterable[InputT]) -> None:
-        self.separator = tuple(separator)
+    def __init__(self, separator: Pattern[InputT]) -> None:
+        self.separator = _pattern_from(separator)
 
     def __call__(self, iterable: Iterable[InputT]) -> Range[Range[InputT]]:
-        values = list(iterable)
         separator_length = len(self.separator)
         if separator_length == 0:
             raise ValueError("Split separator cannot be empty")
 
+        values = list(iterable)
         result: list[Range[InputT]] = []
         current_chunk: list[InputT] = []
         index = 0
         while index < len(values):
-            if values[index : index + separator_length] == list(self.separator):
+            if _starts_with(values, index, self.separator):
                 result.append(Range(*current_chunk))
                 current_chunk = []
                 index += separator_length

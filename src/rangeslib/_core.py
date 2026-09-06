@@ -16,9 +16,27 @@ class RangeAdaptor[InputT, OutputT](ABC):
     def __ror__(self, iterable: Iterable[InputT]) -> OutputT:
         return self(iterable)
 
+    def __or__[NextOutputT](
+        self, adaptor: Callable[[OutputT], NextOutputT], /
+    ) -> RangeAdaptor[InputT, NextOutputT]:
+        return _ComposedRangeAdaptor(self, adaptor)
+
     @abstractmethod
     def __call__(self, iterable: Iterable[InputT]) -> OutputT:
         raise NotImplementedError
+
+
+class _ComposedRangeAdaptor[InputT, MiddleT, OutputT](RangeAdaptor[InputT, OutputT]):
+    def __init__(
+        self,
+        first: Callable[[Iterable[InputT]], MiddleT],
+        second: Callable[[MiddleT], OutputT],
+    ) -> None:
+        self.first = first
+        self.second = second
+
+    def __call__(self, iterable: Iterable[InputT]) -> OutputT:
+        return self.second(self.first(iterable))
 
 
 class RangeGenerator(ABC):

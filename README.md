@@ -29,6 +29,8 @@ assert result == [20, 40, 60]
   and multiplication behavior
 - Sources: `empty`, `single`, `iota`, `indices`, and `repeat`
 - `views.all` for adapting existing Python iterables into reusable `Range` values
+- Reusable adaptor pipelines such as `views.filter(...) | views.take(3)`
+- Scalar and pattern delimiters for `views.split` and `views.join_with`
 - Adaptors for filtering, mapping, slicing, windows, chunks, joins, zips,
   products, projection, and conversion
 - Pipelines starting from `Range`, `list`, `str`, built-in `range`, generators,
@@ -63,15 +65,15 @@ python -m pip install -e ".[dev]"
 Create source ranges with `ranges`:
 
 ```python
-from rangeslib import ranges
+from rangeslib import ranges, views
 
 assert list(ranges.empty()) == []
 assert list(ranges.single("value")) == ["value"]
 assert list(ranges.iota(2, 5)) == [2, 3, 4]
 assert list(ranges.indices(3)) == [0, 1, 2]
+assert list(ranges.repeat("x", 3)) == ["x", "x", "x"]
 assert list(("a", "b") | views.all()) == ["a", "b"]
 assert list("abc" | views.all()) == ["a", "b", "c"]
-assert list(ranges.repeat("x", 3)) == ["x", "x", "x"]
 ```
 
 Compose transformations with `views`:
@@ -88,6 +90,9 @@ result = (
 )
 
 assert list(result) == [60, 40]
+
+pipeline = views.filter(lambda value: value % 2 == 0) | views.take(3)
+assert list([1, 2, 3, 4, 5, 6] | pipeline) == [2, 4, 6]
 ```
 
 Ordinary Python iterables can start pipelines too:

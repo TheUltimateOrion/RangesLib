@@ -54,6 +54,12 @@ class _AdjacentView(Protocol):
     def __ror__[T](self, iterable: Iterable[T], /) -> Range[tuple[T, ...]]: ...
 
 
+class _PairwiseView(Protocol):
+    def __call__[T](self, iterable: Iterable[T], /) -> Range[tuple[T, T]]: ...
+
+    def __ror__[T](self, iterable: Iterable[T], /) -> Range[tuple[T, T]]: ...
+
+
 class _ChunkView(Protocol):
     def __call__[T](self, iterable: Iterable[T], /) -> Range[Range[T]]: ...
 
@@ -64,6 +70,46 @@ class _JoinView(Protocol):
     def __call__[T](self, iterable: Iterable[Iterable[T]], /) -> Range[T]: ...
 
     def __ror__[T](self, iterable: Iterable[Iterable[T]], /) -> Range[T]: ...
+
+
+class _KeysView(Protocol):
+    def __call__[KeyT, ValueT](
+        self, iterable: Iterable[tuple[KeyT, ValueT]], /
+    ) -> Range[KeyT]: ...
+
+    def __ror__[KeyT, ValueT](
+        self, iterable: Iterable[tuple[KeyT, ValueT]], /
+    ) -> Range[KeyT]: ...
+
+
+class _ValuesView(Protocol):
+    def __call__[KeyT, ValueT](
+        self, iterable: Iterable[tuple[KeyT, ValueT]], /
+    ) -> Range[ValueT]: ...
+
+    def __ror__[KeyT, ValueT](
+        self, iterable: Iterable[tuple[KeyT, ValueT]], /
+    ) -> Range[ValueT]: ...
+
+
+class _ZipView[OtherT](Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT]]: ...
+
+
+class _CartesianProductView[OtherT](Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT]]: ...
 
 
 def all() -> _TypePreservingView:
@@ -120,6 +166,11 @@ def takewhile[InputT](predicate: Callable[[InputT], bool]) -> TakeWhile[InputT]:
     return TakeWhile(predicate)
 
 
+def take_while[InputT](predicate: Callable[[InputT], bool]) -> TakeWhile[InputT]:
+    """Alias for :func:`takewhile` using C++-style word separation."""
+    return takewhile(predicate)
+
+
 def drop(count: int) -> _TypePreservingView:
     """Drop values using Python slice-start semantics.
 
@@ -132,6 +183,11 @@ def drop(count: int) -> _TypePreservingView:
 def dropwhile[InputT](predicate: Callable[[InputT], bool]) -> DropWhile[InputT]:
     """Drop initial values while ``predicate`` remains ``True``."""
     return DropWhile(predicate)
+
+
+def drop_while[InputT](predicate: Callable[[InputT], bool]) -> DropWhile[InputT]:
+    """Alias for :func:`dropwhile` using C++-style word separation."""
+    return dropwhile(predicate)
 
 
 def counted(count: int) -> _TypePreservingView:
@@ -148,14 +204,14 @@ def elements(index: int) -> Elements[Any]:
     return Elements[Any](index)
 
 
-def keys() -> Keys[Any]:
+def keys() -> _KeysView:
     """Project field ``0`` from every tuple-like input value."""
-    return Keys[Any]()
+    return cast(_KeysView, Keys[Any]())
 
 
-def values() -> Values[Any]:
+def values() -> _ValuesView:
     """Project field ``1`` from every tuple-like input value."""
-    return Values[Any]()
+    return cast(_ValuesView, Values[Any]())
 
 
 def enumerate(start: int = 0) -> _EnumerateView:
@@ -168,9 +224,9 @@ def concat[InputT](*iterables: Iterable[InputT]) -> Concat[InputT]:
     return Concat(*iterables)
 
 
-def zip[InputT](*iterables: Iterable[InputT]) -> Zip[InputT]:
+def zip[OtherT](*iterables: Iterable[OtherT]) -> _ZipView[OtherT]:
     """Zip the pipeline input with configured iterables to the shortest length."""
-    return Zip(*iterables)
+    return cast(_ZipView[OtherT], Zip[Any](*iterables))
 
 
 def zip_transform[OutputT](
@@ -185,9 +241,9 @@ def adjacent(width: int = 2) -> _AdjacentView:
     return cast(_AdjacentView, Adjacent[object](width))
 
 
-def pairwise() -> _AdjacentView:
+def pairwise() -> _PairwiseView:
     """Return overlapping two-value tuples."""
-    return cast(_AdjacentView, Pairwise[object]())
+    return cast(_PairwiseView, Pairwise[object]())
 
 
 def adjacent_transform[OutputT](
@@ -234,9 +290,9 @@ def stride(step: int) -> _TypePreservingView:
 
 def cartesian_product[InputT](
     *iterables: Iterable[InputT],
-) -> CartesianProduct[InputT]:
+) -> _CartesianProductView[InputT]:
     """Return the Cartesian product of the input and configured iterables."""
-    return CartesianProduct(*iterables)
+    return cast(_CartesianProductView[InputT], CartesianProduct[Any](*iterables))
 
 
 def join() -> _JoinView:
@@ -244,12 +300,12 @@ def join() -> _JoinView:
     return cast(_JoinView, Join[object]())
 
 
-def join_with[InputT](separator: Iterable[InputT]) -> JoinWith[InputT]:
+def join_with[InputT](separator: InputT | Iterable[InputT]) -> JoinWith[InputT]:
     """Flatten nested iterables with ``separator`` inserted between them."""
     return JoinWith(separator)
 
 
-def split[InputT](separator: Iterable[InputT]) -> Split[InputT]:
+def split[InputT](separator: InputT | Iterable[InputT]) -> Split[InputT]:
     """Split input wherever the separator pattern occurs.
 
     Empty chunks are preserved. An empty separator raises ``ValueError`` when
@@ -268,6 +324,7 @@ __all__ = [
     "concat",
     "counted",
     "drop",
+    "drop_while",
     "dropwhile",
     "elements",
     "enumerate",
@@ -282,6 +339,7 @@ __all__ = [
     "split",
     "stride",
     "take",
+    "take_while",
     "takewhile",
     "to",
     "transform",

@@ -34,6 +34,10 @@ def times_ten(value: int) -> int:
     return value * 10
 
 
+def is_small(value: int) -> bool:
+    return value < 10
+
+
 class PublicGeneratorTests(unittest.TestCase):
     def test_all_generators_are_available_through_ranges(self) -> None:
         self.assertEqual(list(ranges.empty()), [])
@@ -57,6 +61,19 @@ class PublicGeneratorTests(unittest.TestCase):
         with self.assertRaises(StopIteration):
             next(source)
 
+    def test_adaptors_can_be_composed_and_reused(self) -> None:
+        pipeline = views.filter(is_even) | views.take(3)
+
+        self.assertEqual(list([1, 2, 3, 4, 5, 6, 8] | pipeline), [2, 4, 6])
+        self.assertEqual(list([10, 11, 12, 14] | pipeline), [10, 12, 14])
+
+    def test_composed_adaptor_reuses_captured_one_shot_iterables_once(self) -> None:
+        suffix = iter([3, 4])
+        pipeline = views.concat(suffix) | views.take(3)
+
+        self.assertEqual(list([1, 2] | pipeline), [1, 2, 3])
+        self.assertEqual(list([1, 2] | pipeline), [1, 2])
+
     def test_non_positive_generator_counts_follow_builtin_range_and_list_rules(
         self,
     ) -> None:
@@ -77,7 +94,9 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(list(views.drop(2)(values)), [3, 4])
         self.assertEqual(list(views.drop(-1)(values)), [4])
         self.assertEqual(list(views.takewhile(is_less_than_three)(values)), [1, 2])
+        self.assertEqual(list(views.take_while(is_less_than_three)(values)), [1, 2])
         self.assertEqual(list(views.dropwhile(is_less_than_three)(values)), [3, 4])
+        self.assertEqual(list(views.drop_while(is_less_than_three)(values)), [3, 4])
 
     def test_bounded_take_and_counted_leave_a_one_shot_iterator_positioned(
         self,
@@ -122,6 +141,20 @@ class PublicViewTests(unittest.TestCase):
             list(views.cartesian_product([10, 20])([1, 2])),
             [(1, 10), (1, 20), (2, 10), (2, 20)],
         )
+        self.assertEqual(
+            list([1, 2] | views.zip(["a", "b"])),
+            [(1, "a"), (2, "b")],
+        )
+        self.assertEqual(
+            list([1, 2] | views.cartesian_product(["a", "b"])),
+            [(1, "a"), (1, "b"), (2, "a"), (2, "b")],
+        )
+
+    def test_uneven_zip_consumes_one_extra_from_longer_left_iterator(self) -> None:
+        source = iter([1, 2, 3])
+
+        self.assertEqual(list(source | views.zip(["a"])), [(1, "a")])
+        self.assertEqual(next(source), 3)
 
     def test_window_and_grouping_views(self) -> None:
         self.assertEqual(list(views.adjacent(3)([1, 2, 3, 4])), [(1, 2, 3), (2, 3, 4)])
@@ -154,6 +187,7 @@ class PublicViewTests(unittest.TestCase):
 
         self.assertEqual(list(views.join()(nested)), [1, 2, 3, 4, 5])
         self.assertEqual(list(views.join_with([0])(nested)), [1, 2, 0, 3, 0, 4, 5])
+        self.assertEqual(list(views.join_with(0)(nested)), [1, 2, 0, 3, 0, 4, 5])
 
         empty_separator: list[int] = []
         joined_without_separator = views.join_with(empty_separator)(nested)
@@ -162,6 +196,14 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(
             [list(chunk) for chunk in views.split([0])([1, 0, 2, 0])],
             [[1], [2], []],
+        )
+        self.assertEqual(
+            [list(chunk) for chunk in views.split(0)([1, 0, 2, 0])],
+            [[1], [2], []],
+        )
+        self.assertEqual(
+            [list(chunk) for chunk in views.split([1, 1])([1, 1, 1])],
+            [[], [1]],
         )
         self.assertEqual(views.to(tuple)([1, 2, 3]), (1, 2, 3))
 
@@ -182,6 +224,14 @@ class PublicViewTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             views.split([])([1, 2, 3])
+
+    def test_split_validates_before_consuming_input(self) -> None:
+        source = iter([1, 2, 3])
+
+        with self.assertRaises(ValueError):
+            views.split([])(source)
+
+        self.assertEqual(next(source), 1)
 
     def test_pipeline_uses_only_the_public_facade(self) -> None:
         result = (
