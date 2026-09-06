@@ -92,7 +92,17 @@ class _ValuesView(Protocol):
     ) -> Range[ValueT]: ...
 
 
-class _ZipView[OtherT](Protocol):
+class _ZipView0(Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT]]: ...
+
+
+class _ZipView1[OtherT](Protocol):
     def __call__[InputT](
         self, iterable: Iterable[InputT], /
     ) -> Range[tuple[InputT, OtherT]]: ...
@@ -102,7 +112,27 @@ class _ZipView[OtherT](Protocol):
     ) -> Range[tuple[InputT, OtherT]]: ...
 
 
-class _CartesianProductView[OtherT](Protocol):
+class _ZipView2[OtherT, ThirdT](Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT, ThirdT]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT, ThirdT]]: ...
+
+
+class _CartesianProductView0(Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT]]: ...
+
+
+class _CartesianProductView1[OtherT](Protocol):
     def __call__[InputT](
         self, iterable: Iterable[InputT], /
     ) -> Range[tuple[InputT, OtherT]]: ...
@@ -110,6 +140,16 @@ class _CartesianProductView[OtherT](Protocol):
     def __ror__[InputT](
         self, iterable: Iterable[InputT], /
     ) -> Range[tuple[InputT, OtherT]]: ...
+
+
+class _CartesianProductView2[OtherT, ThirdT](Protocol):
+    def __call__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT, ThirdT]]: ...
+
+    def __ror__[InputT](
+        self, iterable: Iterable[InputT], /
+    ) -> Range[tuple[InputT, OtherT, ThirdT]]: ...
 
 
 def all() -> _TypePreservingView:
@@ -239,9 +279,27 @@ def concat[InputT](*iterables: Iterable[InputT]) -> Concat[InputT]:
     return Concat(*iterables)
 
 
-def zip[OtherT](*iterables: Iterable[OtherT]) -> _ZipView[OtherT]:
-    """Zip the pipeline input with configured iterables to the shortest length."""
-    return cast(_ZipView[OtherT], Zip[Any](*iterables))
+@overload
+def zip() -> _ZipView0: ...
+
+
+@overload
+def zip[OtherT](iterable: Iterable[OtherT], /) -> _ZipView1[OtherT]: ...
+
+
+@overload
+def zip[OtherT, ThirdT](
+    first: Iterable[OtherT], second: Iterable[ThirdT], /
+) -> _ZipView2[OtherT, ThirdT]: ...
+
+
+def zip(*iterables: Iterable[Any]) -> _ZipView0 | _ZipView1[Any] | _ZipView2[Any, Any]:
+    """Zip the pipeline input with configured iterables to the shortest length.
+
+    Runtime calls may provide more than two configured iterables; precise public
+    typing is provided for zero, one, and two configured iterables.
+    """
+    return cast(_ZipView0 | _ZipView1[Any] | _ZipView2[Any, Any], Zip[Any](*iterables))
 
 
 def zip_transform[OutputT](
@@ -303,11 +361,40 @@ def stride(step: int) -> _TypePreservingView:
     return cast(_TypePreservingView, Stride[object](step))
 
 
-def cartesian_product[InputT](
-    *iterables: Iterable[InputT],
-) -> _CartesianProductView[InputT]:
-    """Return the Cartesian product of the input and configured iterables."""
-    return cast(_CartesianProductView[InputT], CartesianProduct[Any](*iterables))
+@overload
+def cartesian_product() -> _CartesianProductView0: ...
+
+
+@overload
+def cartesian_product[OtherT](
+    iterable: Iterable[OtherT], /
+) -> _CartesianProductView1[OtherT]: ...
+
+
+@overload
+def cartesian_product[OtherT, ThirdT](
+    first: Iterable[OtherT], second: Iterable[ThirdT], /
+) -> _CartesianProductView2[OtherT, ThirdT]: ...
+
+
+def cartesian_product(
+    *iterables: Iterable[Any],
+) -> (
+    _CartesianProductView0
+    | _CartesianProductView1[Any]
+    | _CartesianProductView2[Any, Any]
+):
+    """Return the Cartesian product of the input and configured iterables.
+
+    Runtime calls may provide more than two configured iterables; precise public
+    typing is provided for zero, one, and two configured iterables.
+    """
+    return cast(
+        _CartesianProductView0
+        | _CartesianProductView1[Any]
+        | _CartesianProductView2[Any, Any],
+        CartesianProduct[Any](*iterables),
+    )
 
 
 def join() -> _JoinView:

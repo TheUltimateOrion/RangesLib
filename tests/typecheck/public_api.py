@@ -32,7 +32,17 @@ assert_type(nested | views.join(), Range[int])
 assert_type(numbers | views.transform(stringify), Range[str])
 assert_type(numbers | views.to(as_tuple), tuple[int, ...])
 assert_type(["a", "b"] | views.to(str), str)
+assert_type(numbers | views.zip(), Range[tuple[int]])
 assert_type(numbers | views.zip(["a", "b"]), Range[tuple[int, str]])
+assert_type(
+    numbers | views.zip(["a", "b"], [True, False]),
+    Range[tuple[int, str, bool]],
+)
+assert_type(numbers | views.cartesian_product(), Range[tuple[int]])
 assert_type(numbers | views.cartesian_product(["a", "b"]), Range[tuple[int, str]])
+assert_type(
+    numbers | views.cartesian_product(["a", "b"], [True, False]),
+    Range[tuple[int, str, bool]],
+)
 assert_type([("a", 1), ("b", 2)] | views.keys(), Range[str])
 assert_type([("a", 1), ("b", 2)] | views.values(), Range[int])

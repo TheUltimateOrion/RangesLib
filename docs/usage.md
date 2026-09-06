@@ -131,6 +131,15 @@ and collection types continue to work as before.
 - `join`, `join_with`, and `split` handle nested values and separator patterns.
 - `to` converts the final iterable to a collection or custom result.
 
+`zip` accepts any number of companion iterables and stops at the shortest input:
+
+```python
+assert list([1, 2, 3] | views.zip(["a", "b"], [True, False])) == [
+    (1, "a", True),
+    (2, "b", False),
+]
+```
+
 ## Delimiters
 
 `split` and `join_with` accept either scalar delimiters or iterable separator

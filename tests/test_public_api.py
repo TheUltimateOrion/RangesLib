@@ -134,12 +134,29 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(list(views.concat([3], [4, 5])([1, 2])), [1, 2, 3, 4, 5])
         self.assertEqual(list(views.zip([10, 20])([1, 2, 3])), [(1, 10), (2, 20)])
         self.assertEqual(
+            list(views.zip([10, 20], [True, False])([1, 2, 3])),
+            [(1, 10, True), (2, 20, False)],
+        )
+        self.assertEqual(
             list(views.zip_transform(add_values, [10, 20])([1, 2, 3])),
             [11, 22],
         )
         self.assertEqual(
             list(views.cartesian_product([10, 20])([1, 2])),
             [(1, 10), (1, 20), (2, 10), (2, 20)],
+        )
+        self.assertEqual(
+            list(views.cartesian_product([10, 20], ["a", "b"])([1, 2])),
+            [
+                (1, 10, "a"),
+                (1, 10, "b"),
+                (1, 20, "a"),
+                (1, 20, "b"),
+                (2, 10, "a"),
+                (2, 10, "b"),
+                (2, 20, "a"),
+                (2, 20, "b"),
+            ],
         )
         self.assertEqual(
             list([1, 2] | views.zip(["a", "b"])),

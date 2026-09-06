@@ -29,6 +29,6 @@ note instead of immediately adding more adaptors.
 
 ## Release direction
 
-`0.7.x` should focus on stabilization, compatibility feedback, and polish. A
-future minor release would be a reasonable place for a larger architecture
-experiment such as lazy views.
+`0.9.x` should focus on release-candidate preparation, API review, and
+compatibility documentation. A future minor release would be a reasonable
+place for a larger architecture experiment such as lazy views.

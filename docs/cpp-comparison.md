@@ -13,7 +13,7 @@ not a direct port of C++ view machinery.
 | `views::transform` | `views.transform(func)` | Maps each value through a callable. |
 | `views::take` / `views::drop` | `views.take(count)` / `views.drop(count)` | Uses Python slice semantics, including negative counts. |
 | `views::take_while` / `views::drop_while` | `views.take_while(predicate)` / `views.drop_while(predicate)` | Aliases also exist as `takewhile` and `dropwhile`. |
-| `views::zip` | `views.zip(other)` | Stops at the shortest input. |
+| `views::zip` | `views.zip(*others)` | Accepts any number of companion iterables and stops at the shortest input. |
 | `views::cartesian_product` | `views.cartesian_product(other)` | Produces ordinary Python tuples. |
 | `views::pairwise` | `views.pairwise()` | Produces `Range[tuple[T, T]]`. |
 | `views::chunk` / `views::slide` | `views.chunk(size)` / `views.slide(width)` | Produces nested eager `Range` windows. |
@@ -46,7 +46,9 @@ values yielded by Python iteration. Mutating a mutable object contained in a
 Python type checkers can preserve many useful public types, including mixed
 `zip`, `cartesian_product`, typed `keys` / `values`, and exact `pairwise` tuples.
 They cannot express every C++ tuple-like constraint or variadic callable rule
-with the same precision.
+with the same precision. `zip` and `cartesian_product` provide precise public
+types for zero, one, and two companion iterables; larger runtime arities remain
+supported but are typed less precisely.
 
 ### Naming
 
