@@ -9,6 +9,8 @@ type Pattern[InputT] = InputT | Iterable[InputT]
 
 
 def _pattern_from[InputT](value: Pattern[InputT]) -> tuple[InputT, ...]:
+    if isinstance(value, str):
+        return (cast(InputT, value),)
     try:
         return tuple(cast(Iterable[InputT], value))
     except TypeError:

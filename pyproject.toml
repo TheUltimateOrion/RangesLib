@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rangeslib"
-version = "0.8.1"
+version = "0.8.2"
 description = "Composable, typed Python ranges and iterable adaptors"
 readme = "README.md"
 license = "MIT"

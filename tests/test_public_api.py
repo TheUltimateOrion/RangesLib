@@ -206,6 +206,11 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(list(views.join_with([0])(nested)), [1, 2, 0, 3, 0, 4, 5])
         self.assertEqual(list(views.join_with(0)(nested)), [1, 2, 0, 3, 0, 4, 5])
 
+        string_nested: list[list[str]] = [["left"], ["right"]]
+        self.assertEqual(
+            list(views.join_with("::")(string_nested)), ["left", "::", "right"]
+        )
+
         empty_separator: list[int] = []
         joined_without_separator = views.join_with(empty_separator)(nested)
         self.assertEqual(list(joined_without_separator), [1, 2, 3, 4, 5])
@@ -217,6 +222,10 @@ class PublicViewTests(unittest.TestCase):
         self.assertEqual(
             [list(chunk) for chunk in views.split(0)([1, 0, 2, 0])],
             [[1], [2], []],
+        )
+        self.assertEqual(
+            [list(chunk) for chunk in views.split("::")(["left", "::", "right"])],
+            [["left"], ["right"]],
         )
         self.assertEqual(
             [list(chunk) for chunk in views.split([1, 1])([1, 1, 1])],

@@ -4,6 +4,13 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.8.2 - 2026-09-06
+
+### Fixed
+
+- Treat string delimiters as scalar patterns in `views.split` and
+  `views.join_with`, so multi-character string separators work as documented.
+
 ## 0.8.1 - 2026-09-06
 
 ### Fixed
