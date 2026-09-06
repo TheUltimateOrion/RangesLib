@@ -12,6 +12,7 @@ change independently.
   Publishing.
 - Publishing documentation covering the release flow, trusted publisher fields,
   and GitHub environment behavior.
+- Manual PyPI publishing workflow dispatch for existing releases.
 
 ## 0.5.1 - 2026-09-05
 
