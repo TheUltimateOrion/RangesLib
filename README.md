@@ -5,8 +5,22 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-`rangeslib` is a typed Python library for composing eager ranges and iterable
-transformations with readable pipeline syntax.
+`rangeslib` is a typed Python library for eager, C++-inspired range pipelines.
+The public API is intentionally small:
+
+```python
+from rangeslib import ranges, views
+```
+
+The mental model is:
+
+```text
+ranges creates values
+views transforms values
+views.to converts the final result
+```
+
+## Quick Start
 
 ```python
 from rangeslib import ranges, views
@@ -22,78 +36,11 @@ result = (
 assert result == [20, 40, 60]
 ```
 
-## Features
+`Range` values are eager and reusable. Most adaptors return another `Range`; the
+terminal `views.to(...)` adaptor returns whatever collection or factory you ask
+for.
 
-- Small public API: `Range`, `ranges`, and `views`
-- Typed, list-like `Range` values with normal slicing, copying, concatenation,
-  and multiplication behavior
-- Sources: `empty`, `single`, `iota`, `indices`, and `repeat`
-- `views.all` for adapting existing Python iterables into reusable `Range` values
-- Reusable adaptor pipelines such as `views.filter(...) | views.take(3)`
-- Scalar and pattern delimiters for `views.split` and `views.join_with`
-- Adaptors for filtering, mapping, slicing, windows, chunks, joins, zips,
-  products, projection, and conversion
-- Pipelines starting from `Range`, `list`, `str`, built-in `range`, generators,
-  and other iterables
-- Eager and explicit result materialization, with bounded consumption for
-  operations such as positive `take` and `counted`
-- Inline typing metadata (`py.typed`), static type checking, API contract tests,
-  Sphinx documentation, and package-build validation in CI
-
-## Requirements
-
-Python 3.12 or newer is required.
-
-## Installation
-
-From a source checkout, install the runtime package with:
-
-```bash
-python -m pip install .
-```
-
-For local development, install the contributor toolchain instead:
-
-```bash
-python -m pip install -e ".[dev]"
-```
-
-`rangeslib` has no runtime dependencies.
-
-## Usage
-
-Create source ranges with `ranges`:
-
-```python
-from rangeslib import ranges, views
-
-assert list(ranges.empty()) == []
-assert list(ranges.single("value")) == ["value"]
-assert list(ranges.iota(2, 5)) == [2, 3, 4]
-assert list(ranges.indices(3)) == [0, 1, 2]
-assert list(ranges.repeat("x", 3)) == ["x", "x", "x"]
-assert list(("a", "b") | views.all()) == ["a", "b"]
-assert list("abc" | views.all()) == ["a", "b", "c"]
-```
-
-Compose transformations with `views`:
-
-```python
-from rangeslib import ranges, views
-
-result = (
-    ranges.iota(1, 7)
-    | views.reverse()
-    | views.filter(lambda value: value % 2 == 0)
-    | views.transform(lambda value: value * 10)
-    | views.take(2)
-)
-
-assert list(result) == [60, 40]
-
-pipeline = views.filter(lambda value: value % 2 == 0) | views.take(3)
-assert list([1, 2, 3, 4, 5, 6] | pipeline) == [2, 4, 6]
-```
+## Existing Iterables
 
 Ordinary Python iterables can start pipelines too:
 
@@ -102,122 +49,98 @@ from rangeslib import views
 
 text = "abcdef" | views.take(3) | views.to("".join)
 assert text == "abc"
+
+chars = "abc" | views.all()
+assert list(chars) == ["a", "b", "c"]
 ```
 
-`Range` intentionally uses positional construction. `Range(1, 2, 3)` contains
-three values, while `Range([1, 2, 3])` contains one list value. List-like
-operations still return flat `Range` objects:
+`views.all()` is the eager Python counterpart to C++ `views::all`: it adapts an
+existing iterable into a reusable `Range`.
+
+## Reusable Pipelines
+
+Adaptors can be composed before data is supplied:
 
 ```python
-from rangeslib import Range
+from rangeslib import views
 
-values = Range(1, 2, 3)
-assert list(values[1:]) == [2, 3]
-assert list(values + [4]) == [1, 2, 3, 4]
-assert list(values * 2) == [1, 2, 3, 1, 2, 3]
+first_three_even = views.filter(lambda value: value % 2 == 0) | views.take(3)
+
+assert list([1, 2, 3, 4, 5, 6] | first_three_even) == [2, 4, 6]
+assert list([10, 11, 12, 14] | first_three_even) == [10, 12, 14]
 ```
 
-See [docs/usage.md](docs/usage.md) for the public API behavior contract and
-[docs/architecture.md](docs/architecture.md) for the design and maintenance
-invariants.
+## Sources And Views
 
-## Development
+The `ranges` facade creates source ranges:
 
-Create and activate a virtual environment, then install the development tools:
+```python
+from rangeslib import ranges
+
+ranges.empty()
+ranges.single("value")
+ranges.iota(1, 5)
+ranges.indices(3)
+ranges.repeat("x", 3)
+```
+
+The `views` facade contains transformations such as:
+
+```text
+all, reverse, filter, transform, take, drop, counted,
+elements, keys, values, enumerate, concat, zip, cartesian_product,
+adjacent, pairwise, chunk, slide, stride, join, split, to
+```
+
+See [docs/usage.md](docs/usage.md) for the full API catalog.
+
+## C++ Ranges Correspondence
+
+`rangeslib` borrows naming and broad behavior from C++20/23/26 ranges, but it
+is not a lazy C++ view implementation. The most important differences are:
+
+- Python iterables replace C++ iterator/sentinel pairs.
+- `Range` stores eager values instead of reference-like lazy views.
+- Tuple results are ordinary Python tuples, not tuples of references.
+- Python type checking is useful but cannot express every C++ tuple-like rule.
+
+See [docs/cpp-comparison.md](docs/cpp-comparison.md) for details.
+
+## Installation
+
+Python 3.12 or newer is required.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m pip install .
+```
+
+For development:
+
+```bash
 python -m pip install -e ".[dev]"
 ```
 
-### Format code locally
+`rangeslib` has no runtime dependencies.
 
-`scripts/format.sh` is the mutating developer command. It applies Ruff's safe automatic
-lint fixes and then formats every Python file Ruff discovers in the repository:
+## Development
 
-```bash
-./scripts/format.sh
-```
-
-CI never runs this command because CI should not silently modify source code.
-
-### Install pre-commit hooks
-
-Install the repository hooks after installing the development extra:
+Useful commands live in `scripts/`:
 
 ```bash
-python -m pre_commit install
+./scripts/run_tests.sh       # tests only
+./scripts/typecheck.sh       # mypy + Pyright
+./scripts/check.sh           # Ruff, typing, tests, coverage
+./scripts/check_all.sh       # check.sh + strict Sphinx docs
+./scripts/check_package.sh   # sdist/wheel build and install smoke test
+./scripts/run_playground.sh  # manual playground
 ```
 
-The hooks run Ruff, mypy, and Pyright before each commit. Run every configured
-hook across the repository manually with:
-
-```bash
-python -m pre_commit run --all-files
-```
-
-### Run the local quality gate
-
-`scripts/check.sh` is the read-only source-quality gate used by the complete
-CI check. It checks the whole repository with Ruff, checks formatting, runs
-both mypy and Pyright, and runs the
-test suite with branch coverage:
-
-```bash
-./scripts/check.sh
-```
-
-It may create ignored artifacts such as `.coverage`, but it does not rewrite
-tracked source files.
-
-Run the complete release-quality gate, including a Sphinx build with warnings
-as errors, with:
+Before a release commit, run:
 
 ```bash
 ./scripts/check_all.sh
-```
-
-For a fast static-type-only pass, run:
-
-```bash
-./scripts/typecheck.sh
-```
-
-Ruff checks syntax, style, and common quality issues. Mypy and Pyright both
-check static types: they deliberately use separate type-checking engines, so a
-change must satisfy both the Python implementation and the Pylance-compatible
-analyzer.
-
-For a faster runtime-only test pass:
-
-```bash
-./scripts/run_tests.sh
-```
-
-To validate the distributable source archive and wheel in an isolated
-environment:
-
-```bash
 ./scripts/check_package.sh
 ```
-
-Run the manual playground with:
-
-```bash
-./scripts/run_playground.sh
-```
-
-A recommended pre-push sequence is:
-
-```bash
-./scripts/format.sh
-./scripts/check_all.sh
-./scripts/check_package.sh
-```
-
-The same scripts are invoked by GitHub Actions, which keeps local validation and
-CI behavior synchronized.
 
 ## Documentation
 
@@ -227,26 +150,14 @@ Build the Sphinx site with:
 ./scripts/generate_docs.sh
 ```
 
-Generated HTML is written to `docs/_build/html/`.
-
-Documentation deployment is gated by CI. A push to `main` first runs the
-**Tests and quality** workflow. GitHub Pages is built and deployed only after
-that workflow succeeds, and the deployment workflow checks out the exact commit
-SHA that CI validated.
+Generated HTML is written to `docs/_build/html/` and published to GitHub Pages
+after CI succeeds on `main`.
 
 ## Releases
 
 Changing `[project].version` in `pyproject.toml` on `main` automatically runs
 the complete quality and package checks, then creates the matching Git tag and
-GitHub release with generated notes. For example, changing the version to
-`0.3.3` creates `v0.3.3` after validation succeeds.
+GitHub Release.
 
-Do not create the matching tag manually. The workflow skips a version when its
-GitHub release already exists.
-
-## Compatibility and releases
-
-The project is still in the `0.x` series. Public API changes are documented in
-[docs/changelog.md](docs/changelog.md) and migration notes live in
-[docs/migration.md](docs/migration.md). Private modules beginning with `_` are
-implementation details and are not covered by the public compatibility policy.
+For future work, prefer opening or collecting issues before adding more adaptors
+immediately. See [docs/roadmap.md](docs/roadmap.md).

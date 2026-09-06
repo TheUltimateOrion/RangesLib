@@ -12,6 +12,8 @@ Guides
 
    usage
    architecture
+   cpp-comparison
+   roadmap
    contributing
    migration
    changelog

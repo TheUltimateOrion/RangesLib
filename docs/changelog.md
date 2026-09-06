@@ -4,6 +4,23 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.5.1 - 2026-09-05
+
+### Added
+
+- C++ ranges comparison notes documenting where `rangeslib` follows C++ naming
+  and where Python's eager iterable model intentionally differs.
+- Roadmap notes for collecting future work as issues instead of adding more
+  adaptors immediately.
+
+### Changed
+
+- Reworked the README into a shorter tutorial-style introduction focused on
+  the core mental model: `ranges` creates, `views` transforms, and `views.to`
+  converts.
+- Tightened usage documentation examples so the README stays concise and the
+  usage guide carries the fuller API catalog.
+
 ## 0.5.0 - 2026-09-05
 
 ### Added
