@@ -18,6 +18,8 @@ nested = Range(numbers)
 assert_type(numbers, Range[int])
 assert_type(ranges.single("x"), Range[str])
 assert_type(ranges.repeat("x", 2), Range[str])
+assert_type([1, 2, 3] | views.all(), Range[int])
+assert_type("abc" | views.all(), Range[str])
 
 assert_type(numbers | views.reverse(), Range[int])
 assert_type(numbers | views.take(2), Range[int])

@@ -15,6 +15,8 @@ semantics exactly. The current design prioritizes:
 
 Laziness, iterator/sentinel pairs, borrowed-range semantics, and C++
 customization point objects are explicitly outside the current architecture.
+`views.all` fills the role closest to C++ `views::all` by eagerly materializing
+an existing Python iterable into a reusable `Range`.
 
 ## Package layout
 

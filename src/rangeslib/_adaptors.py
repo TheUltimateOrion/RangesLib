@@ -12,6 +12,13 @@ class SupportsGetItem(Protocol):
     def __getitem__(self, index: int, /) -> object: ...
 
 
+class All[InputT](RangeAdaptor[InputT, Range[InputT]]):
+    """Materialize any iterable as an eager ``Range``."""
+
+    def __call__(self, iterable: Iterable[InputT]) -> Range[InputT]:
+        return Range(*iterable)
+
+
 class To[InputT, OutputT](RangeAdaptor[InputT, OutputT]):
     """Convert an iterable with a supplied collection or factory callable."""
 

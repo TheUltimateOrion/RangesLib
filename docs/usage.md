@@ -54,6 +54,18 @@ assert list(values.copy()) == [1, 2, 3]
 `copy()` is shallow. Mutating the copied outer sequence does not mutate the
 original sequence, but mutable elements are shared.
 
+Use `views.all` to materialize an existing iterable as a reusable `Range`. This
+is the closest Python equivalent to C++ `views::all` in the current eager
+design:
+
+```python
+from rangeslib import ranges, views
+
+assert list([1, 2, 3] | views.all()) == [1, 2, 3]
+assert list(("a", "b") | views.all()) == ["a", "b"]
+assert list("abc" | views.all()) == ["a", "b", "c"]
+```
+
 ## Generators
 
 The `ranges` module constructs eager `Range` values.

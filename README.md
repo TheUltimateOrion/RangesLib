@@ -28,6 +28,7 @@ assert result == [20, 40, 60]
 - Typed, list-like `Range` values with normal slicing, copying, concatenation,
   and multiplication behavior
 - Sources: `empty`, `single`, `iota`, `indices`, and `repeat`
+- `views.all` for adapting existing Python iterables into reusable `Range` values
 - Adaptors for filtering, mapping, slicing, windows, chunks, joins, zips,
   products, projection, and conversion
 - Pipelines starting from `Range`, `list`, `str`, built-in `range`, generators,
@@ -68,6 +69,8 @@ assert list(ranges.empty()) == []
 assert list(ranges.single("value")) == ["value"]
 assert list(ranges.iota(2, 5)) == [2, 3, 4]
 assert list(ranges.indices(3)) == [0, 1, 2]
+assert list(("a", "b") | views.all()) == ["a", "b"]
+assert list("abc" | views.all()) == ["a", "b", "c"]
 assert list(ranges.repeat("x", 3)) == ["x", "x", "x"]
 ```
 

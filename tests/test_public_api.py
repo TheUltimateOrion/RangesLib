@@ -42,6 +42,21 @@ class PublicGeneratorTests(unittest.TestCase):
         self.assertEqual(list(ranges.indices(3)), [0, 1, 2])
         self.assertEqual(list(ranges.repeat("x", 3)), ["x", "x", "x"])
 
+    def test_views_all_materializes_existing_iterables(self) -> None:
+        self.assertEqual(list([1, 2, 3] | views.all()), [1, 2, 3])
+        self.assertEqual(
+            list("abcdefg" | views.all()), ["a", "b", "c", "d", "e", "f", "g"]
+        )
+        self.assertEqual(list(("a", "b") | views.all()), ["a", "b"])
+        self.assertEqual(set({1, 2, 3} | views.all()), {1, 2, 3})
+        source = iter([1, 2, 3])
+        values = views.all()(source)
+
+        self.assertEqual(list(values), [1, 2, 3])
+        self.assertEqual(list(values), [1, 2, 3])
+        with self.assertRaises(StopIteration):
+            next(source)
+
     def test_non_positive_generator_counts_follow_builtin_range_and_list_rules(
         self,
     ) -> None:

@@ -5,6 +5,7 @@ from typing import Any, Callable, Iterable, Protocol, cast
 from ._adaptors import (
     Adjacent,
     AdjacentTransform,
+    All,
     CartesianProduct,
     Chunk,
     ChunkBy,
@@ -63,6 +64,16 @@ class _JoinView(Protocol):
     def __call__[T](self, iterable: Iterable[Iterable[T]], /) -> Range[T]: ...
 
     def __ror__[T](self, iterable: Iterable[Iterable[T]], /) -> Range[T]: ...
+
+
+def all() -> _TypePreservingView:
+    """Materialize an existing iterable as an eager ``Range``.
+
+    This mirrors C++ ``views::all`` at the public API level. Python does not
+    expose borrowed-range or view ownership categories, so this implementation
+    always returns a reusable, materialized :class:`~rangeslib.Range`.
+    """
+    return cast(_TypePreservingView, All[object]())
 
 
 def to[InputT, OutputT](
@@ -250,6 +261,7 @@ def split[InputT](separator: Iterable[InputT]) -> Split[InputT]:
 __all__ = [
     "adjacent",
     "adjacent_transform",
+    "all",
     "cartesian_product",
     "chunk",
     "chunk_by",

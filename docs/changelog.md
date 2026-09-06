@@ -4,6 +4,13 @@ The project follows semantic-versioning conventions where practical during the
 `0.x` development series. Public changes are recorded here; private modules may
 change independently.
 
+## 0.4.0 - 2026-09-05
+
+### Added
+
+- `views.all` for materializing existing Python iterables into reusable `Range`
+  values, similar in purpose to C++ `views::all`.
+
 ## 0.3.3 - 2026-09-05
 
 ### Added
