@@ -137,7 +137,7 @@ recorded here; private modules may change independently.
 - `scripts/check.sh` forwards its selected `PYTHON` interpreter to
   `scripts/typecheck.sh`.
 
-## 0.3.1
+## 0.3.1 - 2026-09-05
 
 ### Fixed
 
@@ -177,12 +177,23 @@ recorded here; private modules may change independently.
 - Project metadata, repository/documentation links, migration notes, and this
   changelog.
 
-## 0.3.0
+## 0.3.0 - 2026-09-05
 
 - Introduced the lowercase `ranges` and `views` facade.
 - Reduced the package-root public namespace to `Range`, `ranges`, and `views`.
 - Documented eager execution and ordinary-iterable pipeline support.
 
-## 0.2.0
+## 0.2.0 - 2026-09-05
 
 - Established the initial range container, source generators, and adaptor set.
+
+## 0.1.0 - 2026-09-05
+
+### Historical release
+
+- Established the first usable `rangeslib` implementation with a typed `Range`
+  container, source generators, iterable adaptors, and readable `|` pipelines.
+- Added direct adaptor calls for ordinary Python iterables, generic transforms
+  and conversions, tuple-like `elements`/`keys`/`values` projections, joins,
+  splits, enumeration, and bounded consumption.
+- Added the initial automated test suite and GitHub Actions test workflow.
