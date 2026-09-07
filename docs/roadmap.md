@@ -29,6 +29,10 @@ note instead of immediately adding more adaptors.
 
 ## Release direction
 
-`0.9.x` should focus on release-candidate preparation, API review, and
-compatibility documentation. A future minor release would be a reasonable
-place for a larger architecture experiment such as lazy views.
+The `1.0.0` release establishes the current eager `Range` design and the
+`Range`, `ranges`, and `views` public surface as stable. Future work should
+preserve that documented API within the 1.x series. Breaking changes require a
+new major version.
+
+Lazy views, broader typed adaptor composition, and other architecture
+experiments remain future design work rather than 1.x commitments.

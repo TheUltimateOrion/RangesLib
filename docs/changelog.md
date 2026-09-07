@@ -1,8 +1,17 @@
 # Changelog
 
-The project follows semantic-versioning conventions where practical during the
-`0.x` development series. Public changes are recorded here; private modules may
-change independently.
+The project follows semantic-versioning conventions. Public changes are
+recorded here; private modules may change independently.
+
+## 1.0.0 - 2026-09-07
+
+### Changed
+
+- Declared the documented `Range`, `ranges`, and `views` API stable for the
+  1.x release series.
+- Promoted the package status from Beta to Production/Stable.
+- Confirmed that the current eager, reusable `Range` model and documented
+  adaptor behavior are the compatibility baseline for 1.0.
 
 ## 0.8.2 - 2026-09-06
 

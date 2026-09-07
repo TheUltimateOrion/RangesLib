@@ -122,6 +122,10 @@ python -m pip install -e ".[dev]"
 
 `rangeslib` has no runtime dependencies.
 
+The 1.x series preserves the documented `Range`, `ranges`, and `views` public
+API. Private modules and implementation classes are not part of the
+compatibility contract; breaking public changes require a new major version.
+
 ## Development
 
 Useful commands live in `scripts/`:

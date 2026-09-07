@@ -68,14 +68,35 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="v${{ steps.version.outputs.version }}"
+          version="${{ steps.version.outputs.version }}"
+          awk -v version="$version" '
+            $0 ~ "^## " version "( -|$)" { print; found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' docs/changelog.md > release-notes.md
+
+          if [[ ! -s release-notes.md ]]; then
+            echo "No changelog entry found for $version" >&2
+            exit 1
+          fi
+
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release $tag already exists."
+            gh release edit "$tag" --notes-file release-notes.md
           else
             gh release create "$tag" \
               --target "$GITHUB_SHA" \
               --title "rangeslib $tag" \
-              --generate-notes
+              --notes-file release-notes.md
           fi
+
+      - name: Upload distributions to GitHub release
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ steps.version.outputs.version }}"
+          gh release upload "$tag" dist/*.tar.gz dist/*.whl --clobber
 
       - name: Start PyPI publishing workflow
         if: steps.version.outputs.release == 'true'

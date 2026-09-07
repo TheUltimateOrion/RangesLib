@@ -9,9 +9,12 @@ should be stored in GitHub secrets.
 2. Update `docs/changelog.md`.
 3. Commit and push to `main`.
 4. The `Release` workflow validates the project and creates `v<version>` plus a
-   GitHub Release.
-5. The `Release` workflow starts `publish.yml` with that tag.
-6. `publish.yml` builds the tagged distribution and publishes it to PyPI.
+   GitHub Release using the matching curated section from `docs/changelog.md`
+   as its release notes.
+5. The `Release` workflow attaches the source archive (`.tar.gz`) and wheel to
+   the GitHub Release for direct downloads.
+6. The `Release` workflow starts `publish.yml` with that tag.
+7. `publish.yml` builds the tagged distribution and publishes it to PyPI.
 
 GitHub does not trigger a `release: published` workflow from a release created
 with `GITHUB_TOKEN`, so `.github/workflows/release.yml` explicitly dispatches
@@ -47,6 +50,10 @@ This uses the same trusted publisher configuration as the normal release flow.
 The workflows check out the release tag, build the source distribution and
 wheel, then publish everything in `dist/` using
 `pypa/gh-action-pypi-publish`.
+
+The GitHub Release created by `release.yml` also includes the generated source
+archive and wheel. Users who do not want to install from PyPI can download the
+source archive directly and install it with a local Python packaging tool.
 
 If the PyPI trusted publisher has not been configured yet, the workflow will
 fail at the publish step without leaking credentials.
